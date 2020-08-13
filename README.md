@@ -5,9 +5,9 @@
 
 
 ```
-dnf install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-dnf -qy module disable postgresql
-dnf install postgresql12-server
+[arafat@server ~]$ dnf install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+[arafat@server ~]$ dnf -qy module disable postgresql
+[arafat@server ~]$ dnf install postgresql12-server
 ```
 We have to create a new PostgreSQL database cluster before we can start creating tables and loading them with data. A database cluster is a collection of databases that are managed by a single server instance. Creating a database cluster consists of creating the directories in which the database data will be placed, generating the shared catalog tables, and creating the `template1` and `postgres` databases.
 
@@ -16,7 +16,7 @@ The `template1` database is a template of sorts used to create new databases; ev
 The Postgres package we installed in the previous step comes with a handy script called `postgresql-setup` which helps with low-level database cluster administration. To create a database cluster, run the script using `sudo` and with the `--initdb` option:
 
 ```
-/usr/pgsql-12/bin/postgresql-12-setup initdb
+[arafat@server ~]$ /usr/pgsql-12/bin/postgresql-12-setup initdb
 
 ```
 
@@ -29,8 +29,8 @@ Output
 
 Now start and enable PostgreSQL using systemctl:
 ```
-systemctl enable postgresql-12
-systemctl start postgresql-12
+[arafat@server ~]$ systemctl enable postgresql-12
+[arafat@server ~]$ systemctl start postgresql-12
 ```
 
 Output
@@ -53,14 +53,14 @@ The installation procedure created a user account called `postgres` that is asso
 So we have to switch over to the `postgres` unix user, which is created upon installation of Postgres and then from the `postgres` unix user  we will able to log on postgres server.
 
 ```
-[arafat_hasan@arafat-latitude ~]$ sudo -i -u postgres
-[postgres@arafat-latitude ~]$ psql
+[arafat@server ~]$ sudo -i -u postgres
+[postgres@server ~]$ psql
 ```
 
 Alternatively, to access a Postgres prompt without switching users
 
 ```
-[arafat_hasan@arafat-latitude ~]$ sudo -u postgres psql
+[arafat@server ~]$ sudo -u postgres psql
 ```
 
 
@@ -71,7 +71,7 @@ To log in with ident-based authentication, we will need a Linux user with the sa
 
 If we don’t have a matching Linux user available, you have to create one with the adduser command.
 ```
-sudo adduser arafat
+[arafat@server ~]$ sudo adduser arafat
 ```
 
 
@@ -104,16 +104,16 @@ Now we will able to connect to `psql` from unix user `arafat` to Postgres role `
 
 
 <pre>
-[arafat_hasan@arafat-latitude ~]$ 
-[arafat_hasan@arafat-latitude ~]$ psql
+[arafat@server ~]$ 
+[arafat@server ~]$ psql
 psql (12.3)
 Type &quot;help&quot; for help.
 
-arafat_hasan=# \l
+arafat=# \l
                                    List of databases
      Name     |  Owner   | Encoding |   Collate   |    Ctype    |   Access privileges   
 --------------+----------+----------+-------------+-------------+-----------------------
- arafat_hasan | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ arafat		  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
  postgres     | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
  template0    | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
               |          |          |             |             | postgres=CTc/postgres
@@ -121,7 +121,7 @@ arafat_hasan=# \l
               |          |          |             |             | postgres=CTc/postgres
 (4 rows)
 
-arafat_hasan=# \h CREATE DATABASE;
+arafat=# \h CREATE DATABASE;
 Command:     CREATE DATABASE
 Description: create a new database
 Syntax:
@@ -138,23 +138,23 @@ CREATE DATABASE name
 
 URL: https://www.postgresql.org/docs/12/sql-createdatabase.html
 
-arafat_hasan=# CREATE DATABASE test;
+arafat=# CREATE DATABASE test;
 CREATE DATABASE
-arafat_hasan=# \l
+arafat=# \l
                                      List of databases
      Name     |    Owner     | Encoding |   Collate   |    Ctype    |   Access privileges   
 --------------+--------------+----------+-------------+-------------+-----------------------
- arafat_hasan | postgres     | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ arafat 	  | postgres     | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
  postgres     | postgres     | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
  template0    | postgres     | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
               |              |          |             |             | postgres=CTc/postgres
  template1    | postgres     | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
               |              |          |             |             | postgres=CTc/postgres
- test         | arafat_hasan | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ test         | arafat | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
 (5 rows)
 
-arafat_hasan=# \c test;
-You are now connected to database &quot;test&quot; as user &quot;arafat_hasan&quot;.
+arafat=# \c test;
+You are now connected to database &quot;test&quot; as user &quot;arafat&quot;.
 </pre>
 
 
