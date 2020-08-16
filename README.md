@@ -159,3 +159,306 @@ You are now connected to database &quot;test&quot; as user &quot;arafat&quot;.
 
 
 
+
+Delete database
+arafat_hasan=# DROP DATABASE test;
+DROP DATABASE
+
+
+
+Create Table in database
+
+```
+test=# \d
+Did not find any relations.
+
+
+```
+
+
+````
+
+
+
+test=# CREATE TABLE person (
+test(# id INT,
+test(# first_name VARCHAR(50),
+test(# last_name VARCHAR(50),
+test(# gender VARCHAR(7),
+test(# date_of_birth DATE );
+CREATE TABLE
+test=# 
+
+```
+
+```
+test=# CREATE TABLE person (
+test(#  id BIGSERIAL NOT NULL PRIMARY KEY,
+test(#  first_name VARCHAR(50) NOT NULL,
+test(#  last_name VARCHAR(50) NOT NULL,
+test(#  gender VARCHAR(50) NOT NULL,
+test(#  date_of_birth DATE NOT NULL,
+test(#  email VARCHAR(150));
+CREATE TABLE
+```
+
+```
+test=# \d
+                List of relations
+ Schema |     Name      |   Type   |    Owner     
+--------+---------------+----------+--------------
+ public | person        | table    | arafat_hasan
+ public | person_id_seq | sequence | arafat_hasan
+(2 rows)
+
+```
+`person_id_seq` is not a table, it is a sequence to maintain and increment the `BIGSERIAL` value in the `person` table.
+
+```
+test=#  \d person;
+                                       Table "public.person"
+    Column     |          Type          | Collation | Nullable |              Default               
+---------------+------------------------+-----------+----------+------------------------------------
+ id            | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name    | character varying(50)  |           | not null | 
+ last_name     | character varying(50)  |           | not null | 
+ gender        | character varying(50)  |           | not null | 
+ date_of_birth | date                   |           | not null | 
+ email         | character varying(150) |           |          | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+
+```
+
+
+
+
+```
+test=# INSERT INTO person (first_name, last_name, gender, date_of_birth)
+test-# VALUES('Anne', 'Smith', 'female', DATE '1988-01-09');
+INSERT 0 1
+
+```
+```
+test=# INSERT INTO person (first_name, last_name, gender, date_of_birth, email)
+VALUES('Jack', 'Doe', 'male', DATE '1985-11-03', 'jack@example.com');
+INSERT 0 1
+```
+
+```
+test=# SELECT * FROM person;
+ id | first_name | last_name | gender | date_of_birth |      email       
+----+------------+-----------+--------+---------------+------------------
+  1 | Anne       | Smith     | female | 1988-01-09    | 
+  2 | Jack       | Doe       | male   | 1985-11-03    | jack@example.com
+(2 rows)
+
+
+```
+
+Generate 1000 Rows with Mockaroo. Mockaroo is a online realist test data generator. By using this site, we will download a bunch of dummy but realistic data in sql format and execute the sql file in termianl.
+
+```
+test=# DROP TABLE person;
+DROP TABLE
+test=# \i /home/arafat_hasan/Downloads/person.sql 
+```
+
+Here we have droped our previous table named person. From the Mockaroo site, we have downloaded sql command with create table included.
+
+
+Now out table is:
+
+```
+test=# \d person;
+                           Table "public.person"
+      Column      |          Type          | Collation | Nullable | Default 
+------------------+------------------------+-----------+----------+---------
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ email            | character varying(150) |           |          | 
+ gender           | character varying(7)   |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ country_of_birth | character varying(50)  |           | not null | 
+
+```
+
+
+```
+test=# SELECT * FROM person;
+  id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
+------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
+    1 | Ronda          | Skermer             | rskermer0@arstechnica.com               | Female | 1993-06-30    | Argentina
+    2 | Hamid          | Abbett              | habbett1@cbc.ca                         | Male   | 1995-08-31    | Ethiopia
+    3 | Francis        | Nickerson           | fnickerson2@mac.com                     | Male   | 1998-03-16    | Portugal
+    4 | Erminie        | M'Quharg            | emquharg3@e-recht24.de                  | Female | 1999-03-13    | Mozambique
+    5 | Teodoro        | Trimmill            |                                         | Male   | 1982-04-30    | China
+    6 | Reilly         | Amesbury            | ramesbury5@businessinsider.com          | Male   | 1990-12-31    | China
+    7 | West           | Elphey              |                                         | Male   | 2004-03-29    | Indonesia
+    8 | Letta          | Caurah              | lcaurah7@yale.edu                       | Female | 1994-09-09    | Indonesia
+    9 | Elset          | Agass               | eagass8@rambler.ru                      | Female | 2004-06-26    | China
+   10 | Aurore         | Drillingcourt       | adrillingcourt9@cnet.com                | Female | 1977-10-19    | China
+   11 | Ilse           | Goldman             | igoldmana@ihg.com                       | Female | 2001-07-31    | Mongolia
+   12 | Penny          | Nayer               | pnayerb@harvard.edu                     | Female | 1969-02-05    | Colombia
+   13 | Neale          | Dubery              | nduberyc@soundcloud.com                 | Male   | 1975-12-22    | Portugal
+   14 | Gnni           | Dickman             | gdickmand@people.com.cn                 | Female | 1977-10-12    | Guatemala
+   15 | Flori          | Giroldi             | fgiroldie@ameblo.jp                     | Female | 1975-11-14    | China
+--More--
+```
+
+
+```
+test=# SELECT id, first_name, last_name FROM person;
+  id  |   first_name   |      last_name      
+------+----------------+---------------------
+    1 | Ronda          | Skermer
+    2 | Hamid          | Abbett
+    3 | Francis        | Nickerson
+    4 | Erminie        | M'Quharg
+    5 | Teodoro        | Trimmill
+    6 | Reilly         | Amesbury
+    7 | West           | Elphey
+    8 | Letta          | Caurah
+    9 | Elset          | Agass
+   10 | Aurore         | Drillingcourt
+--More--
+```
+
+
+# Order BY
+
+Order by ASC DESC
+
+```
+test=# SELECT * FROM person ORDER BY country_of_birth;
+  id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
+------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
+  475 | Koren          | Burgen              |                                         | Female | 1985-09-16    | Afghanistan
+  223 | Collen         | Raubheim            | craubheim66@gravatar.com                | Female | 1968-01-31    | Afghanistan
+  331 | Vaughan        | Borles              | vborles96@behance.net                   | Male   | 1987-09-08    | Albania
+  831 | Cordy          | Aries               |                                         | Male   | 2007-07-06    | Albania
+  662 | Una            | Chevis              | uchevisid@whitehouse.gov                | Female | 2001-10-03    | Albania
+  993 | Delmar         | Sparham             |                                         | Male   | 2000-01-24    | Albania
+  583 | Nikolia        | Whodcoat            | nwhodcoatg6@army.mil                    | Female | 1993-01-01    | Albania
+  751 | Kyrstin        | Wimpenny            | kwimpennyku@slideshare.net              | Female | 1986-07-12    | Algeria
+  837 | Dalis          | McLinden            |                                         | Male   | 1989-09-24    | Angola
+  965 | Morlee         | Flintoffe           | mflintoffeqs@bing.com                   | Male   | 1999-12-23    | Angola
+  636 | Steffen        | Bohman              | sbohmanhn@cmu.edu                       | Male   | 2001-05-07    | Argentina
+  384 | Putnam         | Cowin               | pcowinan@freewebs.com                   | Male   | 2007-05-10    | Argentina
+  305 | Godiva         | Scotchbrook         | gscotchbrook8g@cbslocal.com             | Female | 1977-05-26    | Argentina
+  800 | Letizia        | Dobell              |                                         | Female | 1971-07-15    | Argentina
+  597 | Willard        | Brydon              | wbrydongk@miitbeian.gov.cn              | Male   | 1997-01-07    | Argentina
+  357 | Adelle         | Beden               | abeden9w@eepurl.com                     | Female | 1992-03-13    | Argentina
+  882 | Myrlene        | Toffano             | mtoffanooh@biblegateway.com             | Female | 1988-08-18    | Argentina
+  167 | Tanney         | Nerney              | tnerney4m@slideshare.net                | Male   | 1987-08-15    | Argentina
+  176 | Stevy          | Hawley              |                                         | Male   | 1968-11-11    | Argentina
+  178 | Crysta         | Lant                |                                         | Female | 2003-07-03    | Argentina
+  289 | Fremont        | Beeble              | fbeeble80@storify.com                   | Male   | 1993-09-15    | Argentina
+  786 | Delbert        | Gramer              | dgramerlt@nymag.com                     | Male   | 2009-05-15    | Argentina
+  664 | Marsh          | MacGillicuddy       |                                         | Male   | 1968-05-30    | Argentina
+    1 | Ronda          | Skermer             | rskermer0@arstechnica.com               | Female | 1993-06-30    | Argentina
+  938 | Dukie          | Cant                | dcantq1@independent.co.uk               | Male   | 1991-06-08    | Argentina
+  472 | Vick           | Baggett             |                                         | Male   | 1985-10-15    | Argentina
+  796 | Maximilianus   | Newlyn              | mnewlynm3@google.com.br                 | Male   | 1969-08-14    | Argentina
+  474 | Pete           | Coffin              | pcoffind5@networksolutions.com          | Male   | 1977-04-15    | Argentina
+  110 | Jackie         | Connochie           | jconnochie31@plala.or.jp                | Male   | 1975-11-25    | Argentina
+  247 | Maren          | Mitham              | mmitham6u@lycos.com                     | Female | 2008-04-04    | Argentina
+
+```
+
+
+```
+test=# SELECT * FROM person ORDER BY country_of_birth DESC;
+  id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
+------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
+  563 | Meredeth       | Pantin              |                                         | Male   | 1971-02-22    | Zambia
+  173 | Pennie         | Christauffour       | pchristauffour4s@scientificamerican.com | Male   | 2004-04-16    | Zambia
+  947 | Saidee         | Daffern             | sdaffernqa@barnesandnoble.com           | Female | 1973-03-11    | Yemen
+  742 | Lacee          | Sumner              | lsumnerkl@icio.us                       | Female | 2007-03-31    | Yemen
+  520 | Clerissa       | Mockett             |                                         | Female | 1980-12-08    | Yemen
+   89 | Robinson       | Tichner             |                                         | Male   | 2005-12-09    | Yemen
+  754 | Oren           | Eidler              | oeidlerkx@typepad.com                   | Male   | 1969-02-23    | Yemen
+  725 | Sadye          | Garman              |                                         | Female | 1985-11-05    | Yemen
+  537 | Isadore        | Tasker              | itaskerew@example.com                   | Male   | 1977-03-05    | Vietnam
+  602 | Nevins         | Blenkinship         | nblenkinshipgp@psu.edu                  | Male   | 2010-02-04    | Vietnam
+
+```
+
+
+```
+test=# SELECT * FROM person ORDER BY date_of_birth DESC;
+------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
+  307 | Penni          | Privost             |                                         | Female | 2010-08-07    | Indonesia
+   43 | Kathye         | Bottleson           | kbottleson16@google.pl                  | Female | 2010-06-27    | China
+  616 | Darryl         | Craw                | dcrawh3@nba.com                         | Male   | 2010-05-30    | Guatemala
+  549 | Paulie         | Durante             | pdurantef8@go.com                       | Female | 2010-05-09    | Russia
+  983 | Elka           | Chyuerton           |                                         | Female | 2010-04-28    | China
+  533 | Leslie         | Lusgdin             | llusgdines@creativecommons.org          | Female | 2010-04-20    | Bosnia and Herzegovina
+  248 | Shurwood       | Vezey               | svezey6v@amazon.com                     | Male   | 2010-04-15    | Indonesia
+  974 | Noll           | Pidgin              | npidginr1@wiley.com                     | Male   | 2010-04-13    | Indonesia
+  676 | Edwina         | Presdee             | epresdeeir@icio.us                      | Female | 2010-04-10    | China
+```
+
+
+
+ORDER BY with two parameter. This means that if country_of_birth is same, then the rows will be sorted according to id column. Check the difference between this.
+```
+test=# SELECT * FROM person ORDER BY country_of_birth, id;
+  id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
+------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
+  223 | Collen         | Raubheim            | craubheim66@gravatar.com                | Female | 1968-01-31    | Afghanistan
+  475 | Koren          | Burgen              |                                         | Female | 1985-09-16    | Afghanistan
+  331 | Vaughan        | Borles              | vborles96@behance.net                   | Male   | 1987-09-08    | Albania
+  583 | Nikolia        | Whodcoat            | nwhodcoatg6@army.mil                    | Female | 1993-01-01    | Albania
+  662 | Una            | Chevis              | uchevisid@whitehouse.gov                | Female | 2001-10-03    | Albania
+  831 | Cordy          | Aries               |                                         | Male   | 2007-07-06    | Albania
+  993 | Delmar         | Sparham             |                                         | Male   | 2000-01-24    | Albania
+  751 | Kyrstin        | Wimpenny            | kwimpennyku@slideshare.net              | Female | 1986-07-12    | Algeria
+  837 | Dalis          | McLinden            |                                         | Male   | 1989-09-24    | Angola
+  965 | Morlee         | Flintoffe           | mflintoffeqs@bing.com                   | Male   | 1999-12-23    | Angola
+    1 | Ronda          | Skermer             | rskermer0@arstechnica.com               | Female | 1993-06-30    | Argentina
+  110 | Jackie         | Connochie           | jconnochie31@plala.or.jp                | Male   | 1975-11-25    | Argentina
+  167 | Tanney         | Nerney              | tnerney4m@slideshare.net                | Male   | 1987-08-15    | Argentina
+
+```
+
+
+```
+test=# SELECT DISTINCT country_of_birth FROM person ORDER BY country_of_birth;
+         country_of_birth         
+----------------------------------
+ Afghanistan
+ Albania
+ Algeria
+ Angola
+ Argentina
+ Armenia
+ Australia
+ Azerbaijan
+ Bangladesh
+ Belarus
+ Benin
+ Bolivia
+ Bosnia and Herzegovina
+ Brazil
+ Bulgaria
+ Burkina Faso
+ Cameroon
+ Canada
+ Central African Republic
+
+```
+
+```
+test=# SELECT * FROM person where gender='Female';
+ id  |   first_name   |      last_name      |                 email                 | gender | date_of_birth |     country_of_birth     
+-----+----------------+---------------------+---------------------------------------+--------+---------------+--------------------------
+   1 | Ronda          | Skermer             | rskermer0@arstechnica.com             | Female | 1993-06-30    | Argentina
+   4 | Erminie        | M'Quharg            | emquharg3@e-recht24.de                | Female | 1999-03-13    | Mozambique
+   8 | Letta          | Caurah              | lcaurah7@yale.edu                     | Female | 1994-09-09    | Indonesia
+   9 | Elset          | Agass               | eagass8@rambler.ru                    | Female | 2004-06-26    | China
+  10 | Aurore         | Drillingcourt       | adrillingcourt9@cnet.com              | Female | 1977-10-19    | China
+  11 | Ilse           | Goldman             | igoldmana@ihg.com                     | Female | 2001-07-31    | Mongolia
+  12 | Penny          | Nayer               | pnayerb@harvard.edu                   | Female | 1969-02-05    | Colombia
+
+```
