@@ -1,6 +1,24 @@
-- [Installation](#installation)
-  * [Install PostgreSQL in Ubuntu](#install-postgresql-in-ubuntu)
-  * [Install PostgreSQL in CentOS](#install-postgresql-in-centos)
+
+<p align="center">
+<img align="center" width="250" height="250" alt="PostgreSQL Logo" src="https://imgur.com/JL46J3e.jpg">
+<p>
+
+
+
+<h1 align="center"> PostgreSQL Notes </h1>
+===========================================
+
+
+
+
+
+<br>
+
+## Table Of Content
+- [Introduction to PostgreSQL](#introduction-to-postgresql)
+- [Installation](#🚧-installation)
+  * [ Ubuntu](#install-postgresql-in-ubuntu)
+  * [CentOS](#install-postgresql-in-centos)
     + [Method 1: PostgreSQL Yum Repository](#method-1--postgresql-yum-repository)
     + [Method 2: Using DNF](#method-2--using-dnf)
 - [Creating a New PostgreSQL Database Cluster](#creating-a-new-postgresql-database-cluster)
@@ -43,10 +61,18 @@
 
 
 
+# Introduction to PostgreSQL
+
+PostgreSQL is a powerful, open source object-relational database system with over 30 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance.
+
+PostgreSQL has earned a strong reputation for its proven architecture, reliability, data integrity, robust feature set, extensibility, and the dedication of the open source community behind the software to consistently deliver performant and innovative solutions. PostgreSQL runs on all major operating systems including Linux, UNIX (AIX, BSD, HP-UX, SGI IRIX, Mac OS X, Solaris, Tru64), and Windows.
 
 
+From wikipedia:
+> PostgreSQL (/ˈpoʊstɡrɛs ˌkjuː ˈɛl/), also known as Postgres, is a free and open-source relational database management system (RDBMS) emphasizing extensibility and SQL compliance. It was originally named POSTGRES, referring to its origins as a successor to the Ingres database developed at the University of California, Berkeley. In 1996, the project was renamed to PostgreSQL to reflect its support for SQL. After a review in 2007, the development team decided to keep the name PostgreSQL and the alias Postgres.
 
-# Installation
+
+# 🚧 Installation
 ## Install PostgreSQL in Ubuntu
 
 To install PostgreSQL, first refresh your server’s local package index:
