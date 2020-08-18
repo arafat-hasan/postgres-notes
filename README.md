@@ -1,4 +1,52 @@
+- [Installation](#installation)
+  * [Install PostgreSQL in Ubuntu](#install-postgresql-in-ubuntu)
+  * [Install PostgreSQL in CentOS](#install-postgresql-in-centos)
+    + [Method 1: PostgreSQL Yum Repository](#method-1--postgresql-yum-repository)
+    + [Method 2: Using DNF](#method-2--using-dnf)
+- [Creating a New PostgreSQL Database Cluster](#creating-a-new-postgresql-database-cluster)
+- [Understanding PostgreSQL roles and databases](#understanding-postgresql-roles-and-databases)
+- [Creating a New Postgres Role](#creating-a-new-postgres-role)
+- [Some Very First Commands](#some-very-first-commands)
+  * [Examples](#examples)
+  * [CREATE DATABASE](#create-database)
+  * [DROP DATABASE](#drop-database)
+  * [CREATE TABLE](#create-table)
+  * [Table definition](#table-definition)
+  * [INSERT INTO](#insert-into)
+  * [SELECT](#select)
+  * [DROP TABLE](#drop-table)
+- [The Surface See](#the-surface-see)
+  * [Mockaroo Data Generator](#mockaroo-data-generator)
+  * [ORDER BY](#order-by)
+    + [ASC](#asc)
+    + [DESC](#desc)
+    + [ORDER BY with two-parameter](#order-by-with-two-parameter)
+  * [DISTINCT](#distinct)
+  * [WHERE](#where)
+    + [BETWEEN](#between)
+    + [LIKE](#like)
+  * [GROUP BY](#group-by)
+    + [GROUP BY with ORDER BY](#group-by-with-order-by)
+    + [GROUP BY HAVING](#group-by-having)
+  * [COALESCE](#coalesce)
+  * [Another Table Called `car`](#another-table-called--car-)
+  * [Basic Functions](#basic-functions)
+    + [MAX](#max)
+    + [MIN](#min)
+    + [AVG](#avg)
+    + [ROUND](#round)
+    + [COUNT](#count)
+    + [SUM](#sum)
+  * [Basic Arithmetic Operation](#basic-arithmetic-operation)
+  * [Discount Calculation](#discount-calculation)
+  * [ALIAS](#alias)
 
+
+
+
+
+
+# Installation
 ## Install PostgreSQL in Ubuntu
 
 To install PostgreSQL, first refresh your server’s local package index:
@@ -44,7 +92,7 @@ List out the available streams for the `postgresql` module using the `dnf` comma
 ```
 $ sudo dnf module list postgresql
 ```
-_Output_
+<sub>_Output_</sub>
 ```
 postgresql                           9.6                             client, server [d]                          PostgreSQL server and client module                         
 postgresql                           10 [d]                          client, server [d]                          PostgreSQL server and client module                         
@@ -60,7 +108,7 @@ To enable the module stream for Postgres version 12, run the following command:
 $ sudo dnf module enable postgresql:12
 ```
 
-_Output_
+<sub>_Output_</sub>
 ```
 ====================================================================
  Package        Architecture  Version          Repository      Size
@@ -83,7 +131,7 @@ $ sudo dnf install postgresql-server
 
 When given the prompt, confirm the installation by pressing `y` then `ENTER`:
 
-_Output_
+<sub>_Output_</sub>
 ```
 . . .
 Install  4 Packages
@@ -97,51 +145,53 @@ Now PostgreSQL is installed, we have to perform some initialization steps to pre
 
 See More:  [How To Install and Use PostgreSQL on CentOS 8](How%20To%20Install%20and%20Use%20PostgreSQL%20on%20CentOS%208)
 
-## Creating a New PostgreSQL Database Cluster
+# Creating a New PostgreSQL Database Cluster
 
 We have to create a new PostgreSQL database cluster before we can start creating tables and loading them with data. A database cluster is a collection of databases that are managed by a single server instance. Creating a database cluster consists of creating the directories in which the database data will be placed, generating the shared catalog tables, and creating the `template1` and `postgres` databases.
 
-The `template1` database is a template of sorts used to create new databases; everything that is stored in `template1`, even objects we add ourself, will be placed in new databases when they’re created. The `postgres` database is a default database designed for use by users, utilities, and third-party applications.
+The `template1` database is a template of sorts used to create new databases; everything that is stored in `template1`, even objects we add ourselves, will be placed in new databases when they’re created. The `postgres` database is a default database designed for use by users, utilities, and third-party applications.
 
 The Postgres package we installed in the previous step comes with a handy script called `postgresql-setup` which helps with low-level database cluster administration.
 
-#### To create a database cluster, run the script using `sudo` and with the `--initdb` option.
+To create a database cluster, run the script using `sudo` and with the `--initdb` option.
 
-If PostgreSQL is installed using PostgreSQL Yum repository:
 
+_If PostgreSQL is installed using the PostgreSQL Yum repository:_
 ```
 $ /usr/pgsql-12/bin/postgresql-12-setup initdb
 ```
-If PostgreSQL is installed using DNF:
+
+_If PostgreSQL is installed using DNF:_
 ```
 $ sudo postgresql-setup --initdb
 ```
 
-Output
+<sub>_Output_</sub>
 ```
  * Initializing database in '/var/lib/pgsql/data'
  * Initialized, logs are in /var/lib/pgsql/initdb_postgresql.log
 ```
 
 
-#### Now start and enable PostgreSQL using systemctl.
-If PostgreSQL is installed using PostgreSQL Yum repository:
+Now start and enable PostgreSQL using `systemctl`.
+
+
+_If PostgreSQL is installed using the PostgreSQL Yum repository:_
 
 ```
 $ systemctl enable postgresql-12
 $ systemctl start postgresql-12
 ```
-If PostgreSQL is installed using DNF:
+_If PostgreSQL is installed using DNF:_
 ```
 $ sudo systemctl start postgresql
 $ sudo systemctl enable postgresql
 ```
 
-Output
+<sub>_Output_</sub>
 ```
 Created symlink /etc/systemd/system/multi-user.target.wants/postgresql.service → /usr/lib/systemd/system/postgresql.service.
 ```
-
 
 Now that PostgreSQL is up and running, we will go over using roles to learn how Postgres works and how it is different from similar database management systems.
 
@@ -149,13 +199,13 @@ Now that PostgreSQL is up and running, we will go over using roles to learn how 
 
 # Understanding PostgreSQL roles and databases
 
-By default, Postgres uses a concept called roles to handle in authentication and authorization. These are, in some ways, similar to regular Unix-style accounts, but Postgres does not distinguish between users and groups and instead prefers the more flexible term role.
+By default, Postgres uses a concept called roles to handle authentication and authorization. These are, in some ways, similar to regular Unix-style accounts, but Postgres does not distinguish between users and groups and instead prefers the more flexible term role.
 
-Upon installation, Postgres is set up to use `ident` authentication, meaning that it associates Postgres roles with a matching Unix/Linux system account. If a role exists within Postgres, a Unix/Linux username with the same name is able to sign in as that role.
+Upon installation, Postgres is set up to use `ident` authentication, meaning that it associates Postgres roles with a matching Unix/Linux system account. If a role exists within Postgres, a Unix/Linux username with the same name can sign in as that role.
 
-The installation procedure created a user account called `postgres` that is associated with the default Postgres role. In order to use Postgres, at first we have to log in using that role.
+The installation procedure created a user account called `postgres` that is associated with the default Postgres role. To use Postgres, at first we have to log in using that role.
 
-So we have to switch over to the `postgres` unix user, which is created upon installation of Postgres and then from the `postgres` unix user  we will able to log on postgres server.
+So we have to switch over to the `postgres` UNIX user, which is created upon installation of Postgres, and then from the `postgres` UNIX user, we will able to log on Postgres server.
 ```
 [arafat@server ~]$ sudo -i -u postgres
 [postgres@server ~]$ psql
@@ -168,18 +218,18 @@ Alternatively, to access a Postgres prompt without switching users
 
 
 
-# Creating a New postgres Role
+# Creating a New Postgres Role
 
 To log in with ident-based authentication, we will need a Linux user with the same name as our Postgres role and database.
 
-If we don’t have a matching Linux user available, you have to create one with the adduser command.
+If we don’t have a matching Linux user available, you have to create one with the `adduser` command.
 ```
 [arafat@server ~]$ sudo adduser postgresuser
 ```
 
-We showed how to create a unix user named `postgresuser` here, but we will not use it. Instead , we will use the existing `arafat` user for a new postgres roll.
+We showed how to create a UNIX user named `postgresuser` here, but we will not use it. Instead, we will use the existing `arafat` user for a new Postgres roll.
 
-Now we will create a postgres role. After switching to `postgres` linux user:
+Now we will create a Postgres role. After switching to `postgres` Linux user:
 ```
 postgres@server:~$ createuser --interactive
 Enter name of role to add: arafat
@@ -189,14 +239,13 @@ Shall the new role be a superuser? (y/n) y
 
 Another assumption that the Postgres authentication system makes by default is that for any role used to log in, that role will have a database with the same name which it can access.
 
-This means that if the user we created in the last section is called `arafat`, that role will attempt to connect to a database which is also called `arafat` by default. We can create such a database with the createdb command.
+This means that if the user we created in the last section is called `arafat`, that role will attempt to connect to a database which is also called `arafat` by default. We can create such a database with the `createdb` command.
 
-If we are logged in as the postgres account, we would type something like:
+If we are logged in as the `postgres` user, we would type something like:
 
 ```
 postgres@server:~$ createdb arafat
 ```
-
 
 Now we will able to connect to `psql` from unix user `arafat` to Postgres role `arafat`. 
 ```
@@ -209,10 +258,10 @@ arafat=#
 
 
 
-# Some Very First Commads
+# Some Very First Commands
 - `\q`: Quit/Exit
 - `\l`:  List all databases in the current PostgreSQL database server
-- `\h`: Show the list of SQLcommands
+- `\h`: Show the list of SQL commands
 - `\c __database__`:  Connect to a database
 - `\d`: To describe (list) what tables are in the database
 - `\d __table__`: Show table definition (columns, etc.) including triggers
@@ -221,7 +270,7 @@ arafat=#
 - `\h _command_`: Show syntax on this SQL command
 - `\?`: Show the list of \postgres commands
 
-#### Example
+## Examples
 ```
 [arafat@server ~]$ psql
 psql (12.3)
@@ -258,7 +307,7 @@ URL: https://www.postgresql.org/docs/12/sql-createdatabase.html
 
 ```
 
-#### Create Database
+## CREATE DATABASE
 ```
 arafat=# CREATE DATABASE test;
 CREATE DATABASE
@@ -279,16 +328,16 @@ arafat=# \c test;
 You are now connected to database &quot;test&quot; as user &quot;arafat&quot;.
 ```
 
-#### Delete database
+## DROP DATABASE
 ```
 arafat_hasan=# DROP DATABASE test;
 DROP DATABASE
 ```
 
 
-### Create Table in database
+## CREATE TABLE
 
-We have to create a database again as we deleted the `test` database in previous step. Here `\d` a list of tables, and there is no table in our newly created database.
+We have to create a database again as we deleted the `test` database in the previous step. Here `\d` a list of tables, and there is no table in our newly created database.
 ```
 arafat=# CREATE DATABASE test;
 CREATE DATABASE
@@ -298,6 +347,7 @@ Did not find any relations.
 
 Now here we are creating a new table named `person`:
 
+<sub>_Command_</sub>
 ```sql
 CREATE TABLE person (
  id BIGSERIAL NOT NULL PRIMARY KEY,
@@ -307,12 +357,12 @@ CREATE TABLE person (
  date_of_birth DATE NOT NULL,
  email VARCHAR(150));
 ```
-_Output_
+<sub>_Output_</sub>
 ```
 CREATE TABLE
 ```
 
-Now check list of tables:
+Now check the list of tables:
 ```
 test=# \d
                 List of relations
@@ -325,7 +375,7 @@ test=# \d
 
 `person_id_seq` is not a table, it is a sequence to maintain and increment the `BIGSERIAL` value in the `person` table. The keyword `NOT NULL` means that this field can not be null or blank, we must have enter data for that field. Someone may not have email, so have kept the field as optional.
 
-#### Table definition
+## Table definition
 ```
 test=#  \d person;
                                        Table "public.person"
@@ -343,30 +393,34 @@ Indexes:
 ```
 
 
-#### INSERT INTO
-Notice that, as email is not `NOT NULL` so it is optional to insert in to table.
+## INSERT INTO
+Notice that, as email is not `NOT NULL` so it is optional to insert into the table.
+<sub>_Command_</sub>
 ```sql
 INSERT INTO person (first_name, last_name, gender, date_of_birth)
  VALUES('Anne', 'Smith', 'female', DATE '1988-01-09');
 ```
-_Output_
+<sub>_Output_</sub>
 ```
 INSERT 0 1
 ```
+<sub>_Command_</sub>
 ```sql
 INSERT INTO person (first_name, last_name, gender, date_of_birth, email)
  VALUES('Jack', 'Doe', 'male', DATE '1985-11-03', 'jack@example.com');
 ```
-_Output_
+<sub>_Output_</sub>
 ```
 INSERT 0 1
 ```
-#### SELECT
+
+## SELECT
 Fetch all data from table:
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM person;
 ```
-_Output_
+<sub>_Output_</sub>
 ```
  id | first_name | last_name | gender | date_of_birth |      email       
 ----+------------+-----------+--------+---------------+------------------
@@ -376,31 +430,34 @@ _Output_
 ```
 
 
+## DROP TABLE
+Now we want to delete our table `person`.
+```
+test=# DROP TABLE person;
+DROP TABLE
+```
 
-### Mockaroo
-We will use a site  named [Mockaroo](https://mockaroo.com/) to insert a lot of data into our table for our learning convenience. Mockaroo is a online realist test data generator. We will download a bunch of dummy but realistic data in sql format and execute the sql file in terminal.
+
+#  The Surface See
+
+## Mockaroo Data Generator
+We will use a site named [Mockaroo](https://mockaroo.com/) to insert a lot of data into our table for our learning convenience. Mockaroo is an online realist test data generator. We will download a bunch of dummy but realistic data in SQL format and execute the SQL file in the terminal.
 
 ![Generate data using Mockaroo](https://imgur.com/rLGnx8z.jpg, "Generate data using Mockaroo")
 
 Notes:
 - Field Names and types in Mockaroo according to the image above.
--  For our learning convenience, make sure 30% blank in `email` field.
+-  For our learning convenience, make sure 30% blank in the `email` field.
 - Set a  acceptable nice range for data of birth.
-- To find type of each Field, you have to search with appropriate keyword.
+- To find the type of each field, you have to search with the appropriate keyword.
 - Tick the _include create table_ option.
 
-Now Download data as file named `person.sql`.
+Download the data as a file named `person.sql`.
 
 
+Now we will do some tweaking in `person.sql`, according to our needs. Open this file in your preferred editor, I'm using vs code. Then make the following changes to the CREATE TABLE command at the top of the file.  Notice that we have added `id BIGSERIAL NOT NULL PRIMARY KEY`, changed `VARCHAR` sizes, and specified the `NOT NULL` fields.
 
-#### Drop table
-As we included _include create table_ option in mockaroo website, the sql file we have downloaded includes CREATE TABLE command. So we need to DROP our previous table.
-```
-test=# DROP TABLE person;
-DROP TABLE
-```
-Now we will do some tweaking in `person.sql`, according to our needs. Open this file in your preferred editor, I'm using vs code. Then make the following changes to the CREATE TABLE command at the top of the file.  Notice that we have added `id BIGSERIAL NOT NULL PRIMARY KEY`, changed `VARCHAR` sizes and specified the `NOT NULL` fields.
-
+<sub>_Command_</sub>
 ```sql
 create table person (
 	id BIGSERIAL NOT NULL PRIMARY KEY,
@@ -414,13 +471,13 @@ create table person (
 -- More lines containing INSERT command, We are not showing them here.
 ```
 
-After saving our changed `person.sql` file, now we will execute it. We can copy the whole file and paste it into posges terminal, that will work too, but we are going to do it in a better way. `\i` excecutes a script file of SQL commands.
+After saving our changed `person.sql` file, now we will execute it. We can copy the whole file and paste it into Postgres terminal, that will work too, but we are going to do it in a better way. `\i` executes a script file of SQL commands.
 ```
 test=# \i /path/to/person.sql 
 ```
-Now the script `person.sql` is executed, and there are 1000 rows in the person table.
+Now the script `person.sql` is executed, and there are 1000 rows in the `person` table.
 
-Now out table description look like this:
+Our table description look like this:
 ```
 test=# \d person;
                            Table "public.person"
@@ -435,12 +492,13 @@ test=# \d person;
 
 ```
 
-#### SELECT
+
 Here we have made a query to fetch all the data from the `person` table.
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM person;
 ```
-_Output_
+<sub>_Output_</sub>
 ```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
 ------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
@@ -463,10 +521,11 @@ _Output_
 ```
 
 Alternatively, we can specify our required field names:
+<sub>_Command_</sub>
 ```sql
 SELECT id, first_name, last_name FROM person;
 ```
-_Output_
+<sub>_Output_</sub>
 ```
   id  |   first_name   |      last_name      
 ------+----------------+---------------------
@@ -489,12 +548,14 @@ _Output_
 The ORDER BY keyword is used to sort the result-set in ascending (`ASC`) or descending (`DESC`) order. The ORDER BY keyword sorts the records in ascending order by default. To sort the records in ascending order, use the DESC keyword.
 
 
-Ascending order:
+### ASC
+For ascending order:
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM person ORDER BY country_of_birth;
 ```
 
-_Output_
+<sub>_Output_</sub>
 ```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
 ------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
@@ -510,12 +571,14 @@ _Output_
 --More--
 ```
 
-Dscending order:
+### DESC
+For dscending order:
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM person ORDER BY country_of_birth DESC;
 ```
 
-_Output_
+<sub>_Output_</sub>
 ```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
 ------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
@@ -533,10 +596,11 @@ _Output_
 ```
 
 Date of birth in dscending order:
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM person ORDER BY date_of_birth DESC;
 ```
-_Output_
+<sub>_Output_</sub>
 
 ```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
@@ -556,12 +620,14 @@ _Output_
 
 
 
-`ORDER BY` with two-parameter. This means that if `country_of_birth` is the same, then the rows will be sorted according to the `id` column. Check the difference with pervious one and this.
+### ORDER BY with two-parameter
+This means that if `country_of_birth` is the same, then the rows will be sorted according to the `id` column. Check the difference with the previous one and this.
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM person ORDER BY country_of_birth, id;
 ```
 
-_Output_
+<sub>_Output_</sub>
 ```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
 ------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
@@ -574,13 +640,14 @@ _Output_
 --More--
 ```
 
-#### DISTINCT
+## DISTINCT
 The `SELECT DISTINCT` statement is used to return only distinct (different) values.
+<sub>_Command_</sub>
 ```sql
 SELECT DISTINCT country_of_birth FROM person ORDER BY country_of_birth;
 ```
 
-_Output_
+<sub>_Output_</sub>
 ```
          country_of_birth         
 ----------------------------------
@@ -600,13 +667,14 @@ _Output_
  Brazil
 --More--
 ```
-#### WHERE
+## WHERE
 The `WHERE` clause is used to extract only those records that fulfill a specified condition.
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM person WHERE gender='Female';
 ```
 
-_Output_
+<sub>_Output_</sub>
 ```
  id  |   first_name   |      last_name      |                 email                 | gender | date_of_birth |     country_of_birth     
 -----+----------------+---------------------+---------------------------------------+--------+---------------+--------------------------
@@ -622,16 +690,17 @@ _Output_
 
 
 
-#### BETWEEN
+### BETWEEN
 The `BETWEEN` operator selects values within a given range. The values can be numbers, text, or dates.
 
 The `BETWEEN` operator is inclusive: begin and end values are included.
 
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM person WHERE date_of_birth BETWEEN '1985-02-02' AND '1986-06-04';
 ```
 
-_Output_
+<sub>_Output_</sub>
 ```
  id  | first_name |  last_name   |            email             | gender | date_of_birth |   country_of_birth    
 -----+------------+--------------+------------------------------+--------+---------------+-----------------------
@@ -646,7 +715,7 @@ _Output_
 --More--
 ```
 
-#### LIKE
+### LIKE
 The `LIKE` operator is used in a `WHERE` clause to search for a specified pattern in a column.
 
 There are two wildcards often used in conjunction with the LIKE operator:
@@ -655,10 +724,11 @@ There are two wildcards often used in conjunction with the LIKE operator:
 -   _ : The underscore represents a single character
 
 Find all emails ending with `disqus.com`:
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM person WHERE email LIKE '%disqus.com';
 ```
-_Output_
+<sub>_Output_</sub>
 ```
  id  | first_name |  last_name   |           email            | gender | date_of_birth | country_of_birth 
 -----+------------+--------------+----------------------------+--------+---------------+------------------
@@ -668,16 +738,17 @@ _Output_
 ```
 
 
-#### GROUP BY
-The `GROUP BY` statement groups rows that have the same values into summary rows, like "find the number of person in each country".
+## GROUP BY
+The `GROUP BY` statement groups rows that have the same values into summary rows, like "find the number of persons in each country".
 
 The `GROUP BY` statement is often used with aggregate functions (`COUNT`, `MAX`, `MIN`, `SUM`, `AVG`) to group the result-set by one or more columns.
 
+<sub>_Command_</sub>
 ```sql
 SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth;
 ```
 
-_Output_
+<sub>_Output_</sub>
 
 ```
          country_of_birth         | count 
@@ -695,12 +766,13 @@ _Output_
  Sri Lanka                        |     1
 --More--
 ```
-
+### GROUP BY with ORDER BY
+<sub>_Command_</sub>
 ```sql
 SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth ORDER BY country_of_birth;
 ```
 
-_Output_
+<sub>_Output_</sub>
 ```
          country_of_birth         | count 
 ----------------------------------+-------
@@ -716,13 +788,14 @@ _Output_
 --More--
 ```
 
-#### GROUP BY HAVING
+### GROUP BY HAVING
 The HAVING clause was added to SQL because the WHERE keyword could not be used with aggregate functions.
 
+<sub>_Command_</sub>
 ```sql
 SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth HAVING COUNT(*) > 50 ORDER BY country_of_birth;
 ```
-_Output_
+<sub>_Output_</sub>
 ```
  country_of_birth | count 
 ------------------+-------
@@ -732,13 +805,14 @@ _Output_
 (3 rows)
 ```
 
-COALESCE
+## COALESCE
 The `COALESCE()` function returns the first non-null value in a list.
+<sub>_Command_</sub>
 ```sql
 SELECT COALESCE(email, 'Email not provided') FROM person;
 ```
 
-_Output_
+<sub>_Output_</sub>
 ```
                 coalesce                 
 -----------------------------------------
@@ -757,8 +831,8 @@ _Output_
 --More--
 ```
 
-
-Now we will download a new bunch of data to ceate another  table called `car`. This table have this columns:
+## Another Table Called `car`
+Now we will download a new bunch of data to create another table called `car`. This table has these columns:
 - `id`: Primary key
 - `make`: Company name of the car
 - `model`: Model of the car
@@ -767,6 +841,7 @@ Now we will download a new bunch of data to ceate another  table called `car`. T
 ![Generate data using Mockaroo](https://imgur.com/z93rIG7.jpg ":Generate data using Mockaroo")
 
 Now edit the downloded file `car.sql` a bit—
+<sub>_Command_</sub>
 ```sql
 create table car (
 	id BIGSERIAL NOT NULL PRIMARY KEY,
@@ -783,10 +858,11 @@ test=# \i /path/to/car.sql
 ```
 
 Here is first 10 rows from `car` table. `LIMIT` is used to get only first 10 rows.
+<sub>_Command_</sub>
 ```sql
 SELECT * FROM car LIMIT 10;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
  id |    make    |      model       |   price   
 ----+------------+------------------+-----------
@@ -803,13 +879,15 @@ _Ouptut_
 (10 rows)
 ```
 
-#### MAX
+## Basic Functions
+### MAX
 
 The `MAX()` function returns the largest value of the selected column.
+<sub>_Command_</sub>
 ```sql
 SELECT MAX(price) FROM car;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
     max    
 -----------
@@ -818,10 +896,11 @@ _Ouptut_
 
 ```
 
+<sub>_Command_</sub>
 ```sql
 SELECT make, MAX(price) FROM car GROUP BY make LIMIT 5;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
    make   |    max    
 ----------+-----------
@@ -833,12 +912,13 @@ _Ouptut_
 (5 rows)
 ```
 
-#### MIN
+### MIN
 The `MIN()` function returns the smallest value of the selected column.
+<sub>_Command_</sub>
 ```sql
 SELECT MIN(price) FROM car;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
    min    
 ----------
@@ -847,10 +927,11 @@ _Ouptut_
 
 ```
 
+<sub>_Command_</sub>
 ```sql
 SELECT make, MIN(price) FROM car GROUP BY make LIMIT 5;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
    make   |    min    
 ----------+-----------
@@ -862,12 +943,14 @@ _Ouptut_
 (5 rows)
 ```
 
-#### AVG
+### AVG
 The `AVG()` function returns the average value of a numeric column.
+
+<sub>_Command_</sub>
 ```sql
 SELECT AVG(price) FROM car;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
          avg         
 ---------------------
@@ -875,10 +958,11 @@ _Ouptut_
 (1 row)
 ```
 
+<sub>_Command_</sub>
 ```sql
 SELECT make, AVG(price) FROM car GROUP BY make LIMIT 5;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
    make   |         avg         
 ----------+---------------------
@@ -891,12 +975,13 @@ _Ouptut_
 ```
 
 
-#### ROUND
+### ROUND
 The PostgreSQL `ROUND()` function rounds a numeric value to its nearest integer or a number with the number of decimal places.
+<sub>_Command_</sub>
 ```sql
 SELECT ROUND(AVG(price)) FROM car;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
  round  
 --------
@@ -904,10 +989,11 @@ _Ouptut_
 (1 row)
 ```
 
+<sub>_Command_</sub>
 ```sql
 SELECT make, ROUND(AVG(price)) FROM car GROUP BY make LIMIT 5;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
    make   | round  
 ----------+--------
@@ -921,12 +1007,14 @@ _Ouptut_
 
 ```
 
-#### COUNT
-The `COUNT()` function returns the number of rows that matches a specified criterion.
+### COUNT
+The `COUNT()` function returns the number of rows that match a specified criterion.
+
+<sub>_Command_</sub>
 ```sql
 SELECT COUNT(make) FROM car;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
  count 
 -------
@@ -934,12 +1022,13 @@ _Ouptut_
 (1 row)
 ```
 
-#### SUM
+### SUM
 The `SUM()` function returns the total sum of a numeric column.
+<sub>_Command_</sub>
 ```sql
 SELECT SUM(price) FROM car;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
      sum      
 --------------
@@ -947,10 +1036,11 @@ _Ouptut_
 (1 row)
 ```
 
+<sub>_Command_</sub>
 ```sql
 SELECT make, SUM(price) FROM car GROUP BY make LIMIT 5;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
    make   |     sum     
 ----------+-------------
@@ -962,12 +1052,13 @@ _Ouptut_
 (5 rows)
 ```
 
-### Basic arithmatic operation
+## Basic Arithmetic Operation
 
+<sub>_Command_</sub>
 ```sql
 SELECT 10 + 2;
 ```
-_Ouptut_
+<sub>_Output_</sub>
 ```
  ?column? 
 ----------
@@ -975,11 +1066,12 @@ _Ouptut_
 (1 row)
 ```
 
+<sub>_Command_</sub>
 ```sql
 SELECT 10 / 2;
 ```
 
-_Ouptut_
+<sub>_Output_</sub>
 ```
  ?column? 
 ----------
@@ -987,11 +1079,12 @@ _Ouptut_
 (1 row)
 ```
 
+<sub>_Command_</sub>
 ```sql
 SELECT 10^2;
 ```
 
-_Ouptut_
+<sub>_Output_</sub>
 ```
  ?column? 
 ----------
@@ -999,15 +1092,15 @@ _Ouptut_
 (1 row)
 ```
 
-
-
+## Discount Calculation
 Now suppose the company offers a 10% discount on all cars. We will now calculate the amount of this 10%, and calculate the price of the new discount.
 
+<sub>_Command_</sub>
 ```sql
 SELECT id, make, model, price, ROUND(price * 0.10, 2), ROUND(price - (price * 0.10), 2) FROM car;
 ```
 
-_Ouptut_
+<sub>_Output_</sub>
 ```
   id  |     make      |        model         |   price   |  round   |   round   
 ------+---------------+----------------------+-----------+----------+-----------
@@ -1028,8 +1121,11 @@ _Ouptut_
 
 
 
-ALIAS
+## ALIAS
 SQL aliases are used to give a table, or a column in a table, a temporary name. Aliases are often used to make column names more readable. An alias only exists for the duration of the query.
+
+
+<sub>_Command_</sub>
 ```sql
 SELECT id, make, model, price AS original_price,
  ROUND(price * 0.10, 2) AS ten_percent_discount,
@@ -1037,7 +1133,7 @@ SELECT id, make, model, price AS original_price,
  FROM car;
 ```
 
-_Ouptut_
+<sub>_Output_</sub>
 ```
   id  |     make      |        model         | original_price | ten_percent_discount | discounted_price 
 ------+---------------+----------------------+----------------+----------------------+------------------
