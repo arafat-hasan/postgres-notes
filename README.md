@@ -74,7 +74,11 @@ From wikipedia:
 > PostgreSQL (/ˈpoʊstɡrɛs ˌkjuː ˈɛl/), also known as Postgres, is a free and open-source relational database management system (RDBMS) emphasizing extensibility and SQL compliance. It was originally named POSTGRES, referring to its origins as a successor to the Ingres database developed at the University of California, Berkeley. In 1996, the project was renamed to PostgreSQL to reflect its support for SQL. After a review in 2007, the development team decided to keep the name PostgreSQL and the alias Postgres.
 
 
+
+
 # 🚧 Installation
+
+
 ## Install PostgreSQL in Ubuntu
 
 To install PostgreSQL, first refresh your server’s local package index:
@@ -173,6 +177,9 @@ Now PostgreSQL is installed, we have to perform some initialization steps to pre
 
 See More:  [How To Install and Use PostgreSQL on CentOS 8](How%20To%20Install%20and%20Use%20PostgreSQL%20on%20CentOS%208)
 
+
+
+
 # Creating a New PostgreSQL Database Cluster
 
 We have to create a new PostgreSQL database cluster before we can start creating tables and loading them with data. A database cluster is a collection of databases that are managed by a single server instance. Creating a database cluster consists of creating the directories in which the database data will be placed, generating the shared catalog tables, and creating the `template1` and `postgres` databases.
@@ -225,7 +232,9 @@ Now that PostgreSQL is up and running, we will go over using roles to learn how 
 
 
 
+
 # Understanding PostgreSQL roles and databases
+
 
 By default, Postgres uses a concept called roles to handle authentication and authorization. These are, in some ways, similar to regular Unix-style accounts, but Postgres does not distinguish between users and groups and instead prefers the more flexible term role.
 
@@ -246,7 +255,9 @@ Alternatively, to access a Postgres prompt without switching users
 
 
 
+
 # Creating a New Postgres Role
+
 
 To log in with ident-based authentication, we will need a Linux user with the same name as our Postgres role and database.
 
@@ -286,7 +297,11 @@ arafat=#
 
 
 
+
+
 # Some Very First Commands
+
+
 - `\q`: Quit/Exit
 - `\l`:  List all databases in the current PostgreSQL database server
 - `\h`: Show the list of SQL commands
@@ -298,7 +313,10 @@ arafat=#
 - `\h _command_`: Show syntax on this SQL command
 - `\?`: Show the list of \postgres commands
 
+
+
 ## Examples
+
 ```
 [arafat@server ~]$ psql
 psql (12.3)
@@ -335,6 +353,8 @@ URL: https://www.postgresql.org/docs/12/sql-createdatabase.html
 
 ```
 
+
+
 ## CREATE DATABASE
 ```
 arafat=# CREATE DATABASE test;
@@ -355,6 +375,7 @@ arafat=# \l
 arafat=# \c test;
 You are now connected to database &quot;test&quot; as user &quot;arafat&quot;.
 ```
+
 
 ## DROP DATABASE
 ```
@@ -403,6 +424,8 @@ test=# \d
 
 `person_id_seq` is not a table, it is a sequence to maintain and increment the `BIGSERIAL` value in the `person` table. The keyword `NOT NULL` means that this field can not be null or blank, we must have enter data for that field. Someone may not have email, so have kept the field as optional.
 
+
+
 ## Table definition
 ```
 test=#  \d person;
@@ -442,6 +465,7 @@ INSERT INTO person (first_name, last_name, gender, date_of_birth, email)
 INSERT 0 1
 ```
 
+
 ## SELECT
 Fetch all data from table:
 <sub>_Command_</sub>
@@ -466,7 +490,9 @@ DROP TABLE
 ```
 
 
+
 #  The Surface See
+
 
 ## Mockaroo Data Generator
 We will use a site named [Mockaroo](https://mockaroo.com/) to insert a lot of data into our table for our learning convenience. Mockaroo is an online realist test data generator. We will download a bunch of dummy but realistic data in SQL format and execute the SQL file in the terminal.
@@ -571,9 +597,11 @@ SELECT id, first_name, last_name FROM person;
 ```
 
 
+
 ## ORDER BY
 
 The ORDER BY keyword is used to sort the result-set in ascending (`ASC`) or descending (`DESC`) order. The ORDER BY keyword sorts the records in ascending order by default. To sort the records in ascending order, use the DESC keyword.
+
 
 
 ### ASC
@@ -598,6 +626,7 @@ SELECT * FROM person ORDER BY country_of_birth;
   837 | Dalis          | McLinden            |                                         | Male   | 1989-09-24    | Angola
 --More--
 ```
+
 
 ### DESC
 For dscending order:
@@ -907,7 +936,9 @@ SELECT * FROM car LIMIT 10;
 (10 rows)
 ```
 
+
 ## Basic Functions
+
 ### MAX
 
 The `MAX()` function returns the largest value of the selected column.
@@ -1150,6 +1181,7 @@ SELECT id, make, model, price, ROUND(price * 0.10, 2), ROUND(price - (price * 0.
 
 
 ## ALIAS
+
 SQL aliases are used to give a table, or a column in a table, a temporary name. Aliases are often used to make column names more readable. An alias only exists for the duration of the query.
 
 
