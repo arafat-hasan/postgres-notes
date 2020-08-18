@@ -1,23 +1,122 @@
 
 
 
+## Install PostgreSQL in Ubuntu
+
+To install PostgreSQL, first refresh your server’s local package index:
+```
+$ sudo apt update
+```
+Then, install the Postgres package along with a -contrib package that adds some additional utilities and functionality:
+```
+$ sudo apt install postgresql postgresql-contrib
+```
+
+See More: [How To Install PostgreSQL on Ubuntu 20.04 ](https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart)
 
 
+## Install PostgreSQL in CentOS
+
+
+### Method 1: PostgreSQL Yum Repository
+
+Install the repository RPM:
+```
+$ sudo dnf install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+```
+Disable the built-in PostgreSQL module:
+```
+$ sudo dnf -qy module disable postgresql
+```
+Install PostgreSQL:
+```
+$ sudo dnf install postgresql12-server
+```
+
+Now PostgreSQL is installed, we have to perform some initialization steps to prepare a new database cluster for PostgreSQL.
+
+See More:  [Linux downloads (Red Hat family)](https://www.postgresql.org/download/linux/redhat/)
+
+### Method 2: Using DNF
+
+In DNF, CentOS 8’s default package manager, _modules_ are special collections of RPM packages that together make up a larger application. This is intended to make installing packages and their dependencies more intuitive for users.
+
+List out the available streams for the `postgresql` module using the `dnf` command:
 
 ```
-[arafat@server ~]$ dnf install https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-[arafat@server ~]$ dnf -qy module disable postgresql
-[arafat@server ~]$ dnf install postgresql12-server
+$ sudo dnf module list postgresql
 ```
+_Output_
+```
+postgresql                           9.6                             client, server [d]                          PostgreSQL server and client module                         
+postgresql                           10 [d]                          client, server [d]                          PostgreSQL server and client module                         
+postgresql                           12                              client, server                              PostgreSQL server and client module
+```
+
+We can see in this output that there are three versions of PostgreSQL available from the **AppStream** repository: `9.6`, `10`, and `12`. The stream that provides Postgres version 10 is the default, as indicated by the `[d]` following it. If we want to install that version we could just run `sudo dnf install postgresql-server` and move on to the next step.
+
+To install PostgreSQL version 12, you must enable that version’s module stream. When you enable a module stream, you override the default stream and make all of the packages related to the enabled stream available on the system.
+
+To enable the module stream for Postgres version 12, run the following command:
+```
+$ sudo dnf module enable postgresql:12
+```
+
+_Output_
+```
+====================================================================
+ Package        Architecture  Version          Repository      Size
+====================================================================
+Enabling module streams:
+ postgresql                   12                                   
+
+Transaction Summary
+====================================================================
+
+Is this ok [y/N]: y
+
+```
+
+After enabling the version 12 module stream, you can install the `postgresql-server` package to install PostgreSQL 12 and all of its dependencies:
+
+```
+$ sudo dnf install postgresql-server
+```
+
+When given the prompt, confirm the installation by pressing `y` then `ENTER`:
+
+_Output_
+```
+. . .
+Install  4 Packages
+
+Total download size: 16 M
+Installed size: 62 M
+Is this ok [y/N]: y
+
+```
+Now PostgreSQL is installed, we have to perform some initialization steps to prepare a new database cluster for PostgreSQL.
+
+See More:  [How To Install and Use PostgreSQL on CentOS 8](How%20To%20Install%20and%20Use%20PostgreSQL%20on%20CentOS%208)
+
+## Creating a New PostgreSQL Database Cluster
+
 We have to create a new PostgreSQL database cluster before we can start creating tables and loading them with data. A database cluster is a collection of databases that are managed by a single server instance. Creating a database cluster consists of creating the directories in which the database data will be placed, generating the shared catalog tables, and creating the `template1` and `postgres` databases.
 
 The `template1` database is a template of sorts used to create new databases; everything that is stored in `template1`, even objects we add ourself, will be placed in new databases when they’re created. The `postgres` database is a default database designed for use by users, utilities, and third-party applications.
 
-The Postgres package we installed in the previous step comes with a handy script called `postgresql-setup` which helps with low-level database cluster administration. To create a database cluster, run the script using `sudo` and with the `--initdb` option:
+The Postgres package we installed in the previous step comes with a handy script called `postgresql-setup` which helps with low-level database cluster administration.
+
+#### To create a database cluster, run the script using `sudo` and with the `--initdb` option.
+
+If PostgreSQL is installed using PostgreSQL Yum repository:
 
 ```
-[arafat@server ~]$ /usr/pgsql-12/bin/postgresql-12-setup initdb
-
+$ /usr/pgsql-12/bin/postgresql-12-setup initdb
+```
+If PostgreSQL is installed using DNF:
+```
+$ sudo postgresql-setup --initdb
 ```
 
 Output
@@ -27,10 +126,17 @@ Output
 ```
 
 
-Now start and enable PostgreSQL using systemctl:
+#### Now start and enable PostgreSQL using systemctl.
+If PostgreSQL is installed using PostgreSQL Yum repository:
+
 ```
-[arafat@server ~]$ systemctl enable postgresql-12
-[arafat@server ~]$ systemctl start postgresql-12
+$ systemctl enable postgresql-12
+$ systemctl start postgresql-12
+```
+If PostgreSQL is installed using DNF:
+```
+$ sudo systemctl start postgresql
+$ sudo systemctl enable postgresql
 ```
 
 Output
@@ -39,7 +145,9 @@ Created symlink /etc/systemd/system/multi-user.target.wants/postgresql.service �
 ```
 
 
-Now that PostgreSQL is up and running, we will go over using roles to learn how Postgres works and how it is different from similar database management systems you may have used in the past.
+Now that PostgreSQL is up and running, we will go over using roles to learn how Postgres works and how it is different from similar database management systems.
+
+
 
 # Understanding PostgreSQL roles and databases
 
@@ -47,35 +155,33 @@ By default, Postgres uses a concept called roles to handle in authentication and
 
 Upon installation, Postgres is set up to use `ident` authentication, meaning that it associates Postgres roles with a matching Unix/Linux system account. If a role exists within Postgres, a Unix/Linux username with the same name is able to sign in as that role.
 
-
 The installation procedure created a user account called `postgres` that is associated with the default Postgres role. In order to use Postgres, at first we have to log in using that role.
 
 So we have to switch over to the `postgres` unix user, which is created upon installation of Postgres and then from the `postgres` unix user  we will able to log on postgres server.
-
 ```
 [arafat@server ~]$ sudo -i -u postgres
 [postgres@server ~]$ psql
 ```
 
 Alternatively, to access a Postgres prompt without switching users
-
 ```
 [arafat@server ~]$ sudo -u postgres psql
 ```
 
 
 
-# Creating a New Postgres Role
+# Creating a New postgres Role
 
 To log in with ident-based authentication, we will need a Linux user with the same name as our Postgres role and database.
 
 If we don’t have a matching Linux user available, you have to create one with the adduser command.
 ```
-[arafat@server ~]$ sudo adduser arafat
+[arafat@server ~]$ sudo adduser postgresuser
 ```
 
+We showed how to create a unix user named `postgresuser` here, but we will not use it. Instead , we will use the existing `arafat` user for a new postgres roll.
 
-We have to create a postgres role. After switching to `postgres` linux user:
+Now we will create a postgres role. After switching to `postgres` linux user:
 ```
 postgres@server:~$ createuser --interactive
 Enter name of role to add: arafat
@@ -94,17 +200,31 @@ postgres@server:~$ createdb arafat
 ```
 
 
-Now we will able to connect to `psql` from unix user `arafat` to Postgres role `arafat`.
+Now we will able to connect to `psql` from unix user `arafat` to Postgres role `arafat`. 
+```
+[arafat@server ~]$ psql
+psql (12.3)
+Type &quot;help&quot; for help.
+
+arafat=#
+```
 
 
 
+# Some Very First Commads
+- `\q`: Quit/Exit
+- `\l`:  List all databases in the current PostgreSQL database server
+- `\h`: Show the list of SQLcommands
+- `\c __database__`:  Connect to a database
+- `\d`: To describe (list) what tables are in the database
+- `\d __table__`: Show table definition (columns, etc.) including triggers
+- `\i __filename__`: to run (include) a script file of SQL commands
+- `\w __filename__`: To write the last SQL command to a file
+- `\h _command_`: Show syntax on this SQL command
+- `\?`: Show the list of \postgres commands
 
-# Some Work
-
-
-
-<pre>
-[arafat@server ~]$ 
+#### Example
+```
 [arafat@server ~]$ psql
 psql (12.3)
 Type &quot;help&quot; for help.
@@ -138,6 +258,10 @@ CREATE DATABASE name
 
 URL: https://www.postgresql.org/docs/12/sql-createdatabase.html
 
+```
+
+#### Create Database
+```
 arafat=# CREATE DATABASE test;
 CREATE DATABASE
 arafat=# \l
@@ -150,58 +274,47 @@ arafat=# \l
               |              |          |             |             | postgres=CTc/postgres
  template1    | postgres     | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
               |              |          |             |             | postgres=CTc/postgres
- test         | arafat | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
+ test         | arafat       | UTF8     | en_US.UTF-8 | en_US.UTF-8 | 
 (5 rows)
 
 arafat=# \c test;
 You are now connected to database &quot;test&quot; as user &quot;arafat&quot;.
-</pre>
+```
 
-
-
-
-Delete database
+#### Delete database
+```
 arafat_hasan=# DROP DATABASE test;
 DROP DATABASE
-
-
-
-Create Table in database
-
 ```
+
+
+### Create Table in database
+
+We have to create a database again as we deleted the `test` database in previous step. Here `\d` a list of tables, and there is no table in our newly created database.
+```
+arafat=# CREATE DATABASE test;
+CREATE DATABASE
 test=# \d
 Did not find any relations.
-
-
 ```
 
+Now here we are creating a new table named `person`:
 
-````
-
-
-
-test=# CREATE TABLE person (
-test(# id INT,
-test(# first_name VARCHAR(50),
-test(# last_name VARCHAR(50),
-test(# gender VARCHAR(7),
-test(# date_of_birth DATE );
-CREATE TABLE
-test=# 
-
+```sql
+CREATE TABLE person (
+ id BIGSERIAL NOT NULL PRIMARY KEY,
+ first_name VARCHAR(50) NOT NULL,
+ last_name VARCHAR(50) NOT NULL,
+ gender VARCHAR(50) NOT NULL,
+ date_of_birth DATE NOT NULL,
+ email VARCHAR(150));
 ```
-
+_Output_
 ```
-test=# CREATE TABLE person (
-test(#  id BIGSERIAL NOT NULL PRIMARY KEY,
-test(#  first_name VARCHAR(50) NOT NULL,
-test(#  last_name VARCHAR(50) NOT NULL,
-test(#  gender VARCHAR(50) NOT NULL,
-test(#  date_of_birth DATE NOT NULL,
-test(#  email VARCHAR(150));
 CREATE TABLE
 ```
 
+Now check list of tables:
 ```
 test=# \d
                 List of relations
@@ -210,10 +323,11 @@ test=# \d
  public | person        | table    | arafat_hasan
  public | person_id_seq | sequence | arafat_hasan
 (2 rows)
-
 ```
-`person_id_seq` is not a table, it is a sequence to maintain and increment the `BIGSERIAL` value in the `person` table.
 
+`person_id_seq` is not a table, it is a sequence to maintain and increment the `BIGSERIAL` value in the `person` table. The keyword `NOT NULL` means that this field can not be null or blank, we must have enter data for that field. Someone may not have email, so have kept the field as optional.
+
+#### Table definition
 ```
 test=#  \d person;
                                        Table "public.person"
@@ -231,44 +345,85 @@ Indexes:
 ```
 
 
-
-
+#### INSERT INTO
+Notice that, as email is not `NOT NULL` so it is optional to insert in to table.
+```sql
+INSERT INTO person (first_name, last_name, gender, date_of_birth)
+ VALUES('Anne', 'Smith', 'female', DATE '1988-01-09');
 ```
-test=# INSERT INTO person (first_name, last_name, gender, date_of_birth)
-test-# VALUES('Anne', 'Smith', 'female', DATE '1988-01-09');
-INSERT 0 1
-
+_Output_
 ```
-```
-test=# INSERT INTO person (first_name, last_name, gender, date_of_birth, email)
-VALUES('Jack', 'Doe', 'male', DATE '1985-11-03', 'jack@example.com');
 INSERT 0 1
 ```
-
+```sql
+INSERT INTO person (first_name, last_name, gender, date_of_birth, email)
+ VALUES('Jack', 'Doe', 'male', DATE '1985-11-03', 'jack@example.com');
 ```
-test=# SELECT * FROM person;
+_Output_
+```
+INSERT 0 1
+```
+#### SELECT
+Fetch all data from table:
+```sql
+SELECT * FROM person;
+```
+_Output_
+```
  id | first_name | last_name | gender | date_of_birth |      email       
 ----+------------+-----------+--------+---------------+------------------
   1 | Anne       | Smith     | female | 1988-01-09    | 
   2 | Jack       | Doe       | male   | 1985-11-03    | jack@example.com
 (2 rows)
-
-
 ```
 
-Generate 1000 Rows with Mockaroo. Mockaroo is a online realist test data generator. By using this site, we will download a bunch of dummy but realistic data in sql format and execute the sql file in termianl.
 
+
+### Mockaroo
+We will use a site  named [Mockaroo](https://mockaroo.com/) to insert a lot of data into our table for our learning convenience. Mockaroo is a online realist test data generator. We will download a bunch of dummy but realistic data in sql format and execute the sql file in terminal.
+
+![Generate data using Mockaroo](https://imgur.com/rLGnx8z)
+
+
+Notes:
+- Field Names and types in Mockaroo according to the image above.
+-  For our learning convenience, make sure 30% blank in `email` field.
+- Set a  acceptable nice range for data of birth.
+- To find type of each Field, you have to search with appropriate keyword.
+- Tick the _include create table_ option.
+
+Now Download data as file named `person.sql`.
+
+
+
+#### Drop table
+As we included _include create table_ option in mockaroo website, the sql file we have downloaded includes CREATE TABLE command. So we need to DROP our previous table.
 ```
 test=# DROP TABLE person;
 DROP TABLE
-test=# \i /home/arafat_hasan/Downloads/person.sql 
+```
+Now we will do some tweaking in `person.sql`, according to our needs. Open this file in your preferred editor, I'm using vs code. Then make the following changes to the CREATE TABLE command at the top of the file.  Notice that we have added `id BIGSERIAL NOT NULL PRIMARY KEY`, changed `VARCHAR` sizes and specified the `NOT NULL` fields.
+
+```sql
+create table person (
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+	first_name VARCHAR(50) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
+	email VARCHAR(150),
+	gender VARCHAR(7) NOT NULL,
+	date_of_birth DATE NOT NULL,
+	country_of_birth VARCHAR(50) NOT NULL
+);
+-- More lines containing INSERT command, We are not showing them here.
 ```
 
-Here we have droped our previous table named person. From the Mockaroo site, we have downloaded sql command with create table included.
+After saving our changed `person.sql` file, now we will execute it. We can copy the whole file and paste it into posges terminal, that will work too, but we are going to do it in a better way. `\i` excecutes a script file of SQL commands.
+```
+test=# \i /path/to/person.sql 
+```
+Now the script `person.sql` is executed, and there are 1000 rows in the person table.
 
-
-Now out table is:
-
+Now out table description look like this:
 ```
 test=# \d person;
                            Table "public.person"
@@ -283,9 +438,13 @@ test=# \d person;
 
 ```
 
-
+#### SELECT
+Here we have made a query to fetch all the data from the `person` table.
+```sql
+SELECT * FROM person;
 ```
-test=# SELECT * FROM person;
+_Output_
+```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
 ------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
     1 | Ronda          | Skermer             | rskermer0@arstechnica.com               | Female | 1993-06-30    | Argentina
@@ -306,9 +465,12 @@ test=# SELECT * FROM person;
 --More--
 ```
 
-
+Alternatively, we can specify our required field names:
+```sql
+SELECT id, first_name, last_name FROM person;
 ```
-test=# SELECT id, first_name, last_name FROM person;
+_Output_
+```
   id  |   first_name   |      last_name      
 ------+----------------+---------------------
     1 | Ronda          | Skermer
@@ -325,12 +487,18 @@ test=# SELECT id, first_name, last_name FROM person;
 ```
 
 
-# Order BY
+## ORDER BY
 
-Order by ASC DESC
+The ORDER BY keyword is used to sort the result-set in ascending (`ASC`) or descending (`DESC`) order. The ORDER BY keyword sorts the records in ascending order by default. To sort the records in ascending order, use the DESC keyword.
 
+
+Ascending order:
+```sql
+SELECT * FROM person ORDER BY country_of_birth;
 ```
-test=# SELECT * FROM person ORDER BY country_of_birth;
+
+_Output_
+```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
 ------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
   475 | Koren          | Burgen              |                                         | Female | 1985-09-16    | Afghanistan
@@ -342,33 +510,16 @@ test=# SELECT * FROM person ORDER BY country_of_birth;
   583 | Nikolia        | Whodcoat            | nwhodcoatg6@army.mil                    | Female | 1993-01-01    | Albania
   751 | Kyrstin        | Wimpenny            | kwimpennyku@slideshare.net              | Female | 1986-07-12    | Algeria
   837 | Dalis          | McLinden            |                                         | Male   | 1989-09-24    | Angola
-  965 | Morlee         | Flintoffe           | mflintoffeqs@bing.com                   | Male   | 1999-12-23    | Angola
-  636 | Steffen        | Bohman              | sbohmanhn@cmu.edu                       | Male   | 2001-05-07    | Argentina
-  384 | Putnam         | Cowin               | pcowinan@freewebs.com                   | Male   | 2007-05-10    | Argentina
-  305 | Godiva         | Scotchbrook         | gscotchbrook8g@cbslocal.com             | Female | 1977-05-26    | Argentina
-  800 | Letizia        | Dobell              |                                         | Female | 1971-07-15    | Argentina
-  597 | Willard        | Brydon              | wbrydongk@miitbeian.gov.cn              | Male   | 1997-01-07    | Argentina
-  357 | Adelle         | Beden               | abeden9w@eepurl.com                     | Female | 1992-03-13    | Argentina
-  882 | Myrlene        | Toffano             | mtoffanooh@biblegateway.com             | Female | 1988-08-18    | Argentina
-  167 | Tanney         | Nerney              | tnerney4m@slideshare.net                | Male   | 1987-08-15    | Argentina
-  176 | Stevy          | Hawley              |                                         | Male   | 1968-11-11    | Argentina
-  178 | Crysta         | Lant                |                                         | Female | 2003-07-03    | Argentina
-  289 | Fremont        | Beeble              | fbeeble80@storify.com                   | Male   | 1993-09-15    | Argentina
-  786 | Delbert        | Gramer              | dgramerlt@nymag.com                     | Male   | 2009-05-15    | Argentina
-  664 | Marsh          | MacGillicuddy       |                                         | Male   | 1968-05-30    | Argentina
-    1 | Ronda          | Skermer             | rskermer0@arstechnica.com               | Female | 1993-06-30    | Argentina
-  938 | Dukie          | Cant                | dcantq1@independent.co.uk               | Male   | 1991-06-08    | Argentina
-  472 | Vick           | Baggett             |                                         | Male   | 1985-10-15    | Argentina
-  796 | Maximilianus   | Newlyn              | mnewlynm3@google.com.br                 | Male   | 1969-08-14    | Argentina
-  474 | Pete           | Coffin              | pcoffind5@networksolutions.com          | Male   | 1977-04-15    | Argentina
-  110 | Jackie         | Connochie           | jconnochie31@plala.or.jp                | Male   | 1975-11-25    | Argentina
-  247 | Maren          | Mitham              | mmitham6u@lycos.com                     | Female | 2008-04-04    | Argentina
-
+--More--
 ```
 
-
+Dscending order:
+```sql
+SELECT * FROM person ORDER BY country_of_birth DESC;
 ```
-test=# SELECT * FROM person ORDER BY country_of_birth DESC;
+
+_Output_
+```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
 ------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
   563 | Meredeth       | Pantin              |                                         | Male   | 1971-02-22    | Zambia
@@ -384,9 +535,14 @@ test=# SELECT * FROM person ORDER BY country_of_birth DESC;
 
 ```
 
+Date of birth in dscending order:
+```sql
+SELECT * FROM person ORDER BY date_of_birth DESC;
+```
+_Output_
 
 ```
-test=# SELECT * FROM person ORDER BY date_of_birth DESC;
+  id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
 ------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
   307 | Penni          | Privost             |                                         | Female | 2010-08-07    | Indonesia
    43 | Kathye         | Bottleson           | kbottleson16@google.pl                  | Female | 2010-06-27    | China
@@ -397,13 +553,19 @@ test=# SELECT * FROM person ORDER BY date_of_birth DESC;
   248 | Shurwood       | Vezey               | svezey6v@amazon.com                     | Male   | 2010-04-15    | Indonesia
   974 | Noll           | Pidgin              | npidginr1@wiley.com                     | Male   | 2010-04-13    | Indonesia
   676 | Edwina         | Presdee             | epresdeeir@icio.us                      | Female | 2010-04-10    | China
+  813 | Terri          | Blockey             | tblockeymk@gnu.org                      | Female | 2010-04-08    | China
+--More--
 ```
 
 
 
-ORDER BY with two parameter. This means that if country_of_birth is same, then the rows will be sorted according to id column. Check the difference between this.
+`ORDER BY` with two-parameter. This means that if `country_of_birth` is the same, then the rows will be sorted according to the `id` column. Check the difference with pervious one and this.
+```sql
+SELECT * FROM person ORDER BY country_of_birth, id;
 ```
-test=# SELECT * FROM person ORDER BY country_of_birth, id;
+
+_Output_
+```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
 ------+----------------+---------------------+-----------------------------------------+--------+---------------+----------------------------------
   223 | Collen         | Raubheim            | craubheim66@gravatar.com                | Female | 1968-01-31    | Afghanistan
@@ -412,19 +574,17 @@ test=# SELECT * FROM person ORDER BY country_of_birth, id;
   583 | Nikolia        | Whodcoat            | nwhodcoatg6@army.mil                    | Female | 1993-01-01    | Albania
   662 | Una            | Chevis              | uchevisid@whitehouse.gov                | Female | 2001-10-03    | Albania
   831 | Cordy          | Aries               |                                         | Male   | 2007-07-06    | Albania
-  993 | Delmar         | Sparham             |                                         | Male   | 2000-01-24    | Albania
-  751 | Kyrstin        | Wimpenny            | kwimpennyku@slideshare.net              | Female | 1986-07-12    | Algeria
-  837 | Dalis          | McLinden            |                                         | Male   | 1989-09-24    | Angola
-  965 | Morlee         | Flintoffe           | mflintoffeqs@bing.com                   | Male   | 1999-12-23    | Angola
-    1 | Ronda          | Skermer             | rskermer0@arstechnica.com               | Female | 1993-06-30    | Argentina
-  110 | Jackie         | Connochie           | jconnochie31@plala.or.jp                | Male   | 1975-11-25    | Argentina
-  167 | Tanney         | Nerney              | tnerney4m@slideshare.net                | Male   | 1987-08-15    | Argentina
-
+--More--
 ```
 
-
+#### DISTINCT
+The `SELECT DISTINCT` statement is used to return only distinct (different) values.
+```sql
+SELECT DISTINCT country_of_birth FROM person ORDER BY country_of_birth;
 ```
-test=# SELECT DISTINCT country_of_birth FROM person ORDER BY country_of_birth;
+
+_Output_
+```
          country_of_birth         
 ----------------------------------
  Afghanistan
@@ -441,16 +601,16 @@ test=# SELECT DISTINCT country_of_birth FROM person ORDER BY country_of_birth;
  Bolivia
  Bosnia and Herzegovina
  Brazil
- Bulgaria
- Burkina Faso
- Cameroon
- Canada
- Central African Republic
-
+--More--
+```
+#### WHERE
+The `WHERE` clause is used to extract only those records that fulfill a specified condition.
+```sql
+SELECT * FROM person WHERE gender='Female';
 ```
 
+_Output_
 ```
-test=# SELECT * FROM person where gender='Female';
  id  |   first_name   |      last_name      |                 email                 | gender | date_of_birth |     country_of_birth     
 -----+----------------+---------------------+---------------------------------------+--------+---------------+--------------------------
    1 | Ronda          | Skermer             | rskermer0@arstechnica.com             | Female | 1993-06-30    | Argentina
@@ -460,5 +620,442 @@ test=# SELECT * FROM person where gender='Female';
   10 | Aurore         | Drillingcourt       | adrillingcourt9@cnet.com              | Female | 1977-10-19    | China
   11 | Ilse           | Goldman             | igoldmana@ihg.com                     | Female | 2001-07-31    | Mongolia
   12 | Penny          | Nayer               | pnayerb@harvard.edu                   | Female | 1969-02-05    | Colombia
+--More--
+```
+
+
+
+#### BETWEEN
+The `BETWEEN` operator selects values within a given range. The values can be numbers, text, or dates.
+
+The `BETWEEN` operator is inclusive: begin and end values are included.
+
+```sql
+SELECT * FROM person WHERE date_of_birth BETWEEN '1985-02-02' AND '1986-06-04';
+```
+
+_Output_
+```
+ id  | first_name |  last_name   |            email             | gender | date_of_birth |   country_of_birth    
+-----+------------+--------------+------------------------------+--------+---------------+-----------------------
+  25 | Billi      | Dybbe        | bdybbeo@samsung.com          | Female | 1986-02-22    | Brazil
+  37 | Sorcha     | Tunesi       | stunesi10@adobe.com          | Female | 1986-04-12    | Philippines
+  45 | Carleen    | Dzeniskevich | cdzeniskevich18@disqus.com   | Female | 1985-06-18    | China
+ 103 | Oberon     | Sparry       | osparry2u@yellowbook.com     | Male   | 1985-09-22    | China
+ 125 | Cal        | Shurville    | cshurville3g@1und1.de        | Male   | 1986-01-29    | Qatar
+ 157 | Juline     | Wanek        |                              | Female | 1985-11-30    | Sweden
+ 162 | Amelia     | Braferton    |                              | Female | 1986-05-03    | New Zealand
+ 168 | West       | Glowacz      | wglowacz4n@yolasite.com      | Male   | 1985-12-02    | Canada
+--More--
+```
+
+#### LIKE
+The `LIKE` operator is used in a `WHERE` clause to search for a specified pattern in a column.
+
+There are two wildcards often used in conjunction with the LIKE operator:
+
+-   %: The percent sign represents zero, one, or multiple characters
+-   _ : The underscore represents a single character
+
+Find all emails ending with `disqus.com`:
+```sql
+SELECT * FROM person WHERE email LIKE '%disqus.com';
+```
+_Output_
+```
+ id  | first_name |  last_name   |           email            | gender | date_of_birth | country_of_birth 
+-----+------------+--------------+----------------------------+--------+---------------+------------------
+  45 | Carleen    | Dzeniskevich | cdzeniskevich18@disqus.com | Female | 1985-06-18    | China
+ 852 | Alex       | Garmans      | agarmansnn@disqus.com      | Male   | 1990-11-08    | China
+(2 rows)
+```
+
+
+#### GROUP BY
+The `GROUP BY` statement groups rows that have the same values into summary rows, like "find the number of person in each country".
+
+The `GROUP BY` statement is often used with aggregate functions (`COUNT`, `MAX`, `MIN`, `SUM`, `AVG`) to group the result-set by one or more columns.
+
+```sql
+SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth;
+```
+
+_Output_
 
 ```
+         country_of_birth         | count 
+----------------------------------+-------
+ Bangladesh                       |     1
+ Indonesia                        |   109
+ Venezuela                        |     5
+ Cameroon                         |     3
+ Czech Republic                   |    18
+ Sweden                           |    31
+ Dominican Republic               |     7
+ Ireland                          |     3
+ Macedonia                        |     4
+ Papua New Guinea                 |     2
+ Sri Lanka                        |     1
+--More--
+```
+
+```sql
+SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth ORDER BY country_of_birth;
+```
+
+_Output_
+```
+         country_of_birth         | count 
+----------------------------------+-------
+ Afghanistan                      |     2
+ Albania                          |     5
+ Algeria                          |     1
+ Angola                           |     2
+ Argentina                        |    20
+ Armenia                          |     5
+ Australia                        |     1
+ Azerbaijan                       |     3
+ Bangladesh                       |     1
+--More--
+```
+
+#### GROUP BY HAVING
+The HAVING clause was added to SQL because the WHERE keyword could not be used with aggregate functions.
+
+```sql
+SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth HAVING COUNT(*) > 50 ORDER BY country_of_birth;
+```
+_Output_
+```
+ country_of_birth | count 
+------------------+-------
+ China            |   180
+ Indonesia        |   109
+ Russia           |    56
+(3 rows)
+```
+
+COALESCE
+The `COALESCE()` function returns the first non-null value in a list.
+```sql
+SELECT COALESCE(email, 'Email not provided') FROM person;
+```
+
+_Output_
+```
+                coalesce                 
+-----------------------------------------
+ rskermer0@arstechnica.com
+ habbett1@cbc.ca
+ fnickerson2@mac.com
+ emquharg3@e-recht24.de
+ Email not provided
+ ramesbury5@businessinsider.com
+ Email not provided
+ lcaurah7@yale.edu
+ eagass8@rambler.ru
+ adrillingcourt9@cnet.com
+ igoldmana@ihg.com
+ pnayerb@harvard.edu
+--More--
+```
+
+
+Now we will download a new bunch of data to ceate another  table called `car`. This table have this columns:
+- `id`: Primary key
+- `make`: Company name of the car
+- `model`: Model of the car
+- `price`: Price of the car, price between in a nice range
+
+![Generate data using Mockaroo](https://imgur.com/z93rIG7)
+
+Now edit the downloded file `car.sql` a bit—
+```sql
+create table car (
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+	make VARCHAR(100) NOT NULL,
+	model VARCHAR(100) NOT NULL,
+	price NUMERIC(19, 2) NOT NULL
+);
+
+-- More lines containing INSERT command, We are not showing them here.
+```
+After saving our changed `car.sql` file, now we will execute it.
+```
+test=# \i /path/to/car.sql 
+```
+
+Here is first 10 rows from `car` table. `LIMIT` is used to get only first 10 rows.
+```sql
+SELECT * FROM car LIMIT 10;
+```
+_Ouptut_
+```
+ id |    make    |      model       |   price   
+----+------------+------------------+-----------
+  1 | Daewoo     | Leganza          | 241058.40
+  2 | Mitsubishi | Montero          | 269595.21
+  3 | Kia        | Rio              | 245275.16
+  4 | GMC        | Savana 1500      | 217435.26
+  5 | Jaguar     | X-Type           |  41665.96
+  6 | Lincoln    | Mark VIII        | 163843.38
+  7 | GMC        | Rally Wagon 3500 | 231169.05
+  8 | Cadillac   | Escalade ESV     | 279951.34
+  9 | Volvo      | XC70             | 269436.96
+ 10 | Isuzu      | Rodeo            |  65421.58
+(10 rows)
+```
+
+#### MAX
+
+The `MAX()` function returns the largest value of the selected column.
+```sql
+SELECT MAX(price) FROM car;
+```
+_Ouptut_
+```
+    max    
+-----------
+ 299959.83
+(1 row)
+
+```
+
+```sql
+SELECT make, MAX(price) FROM car GROUP BY make LIMIT 5;
+```
+_Ouptut_
+```
+   make   |    max    
+----------+-----------
+ Ford     | 290993.39
+ Smart    | 159887.95
+ Maserati | 221349.10
+ Dodge    | 299766.43
+ Infiniti | 298245.19
+(5 rows)
+```
+
+#### MIN
+The `MIN()` function returns the smallest value of the selected column.
+```sql
+SELECT MIN(price) FROM car;
+```
+_Ouptut_
+```
+   min    
+----------
+ 30348.16
+(1 row)
+
+```
+
+```sql
+SELECT make, MIN(price) FROM car GROUP BY make LIMIT 5;
+```
+_Ouptut_
+```
+   make   |    min    
+----------+-----------
+ Ford     |  31021.48
+ Smart    | 159887.95
+ Maserati |  38668.83
+ Dodge    |  33495.17
+ Infiniti |  47912.88
+(5 rows)
+```
+
+#### AVG
+The `AVG()` function returns the average value of a numeric column.
+```sql
+SELECT AVG(price) FROM car;
+```
+_Ouptut_
+```
+         avg         
+---------------------
+ 164735.601300000000
+(1 row)
+```
+
+```sql
+SELECT make, AVG(price) FROM car GROUP BY make LIMIT 5;
+```
+_Ouptut_
+```
+   make   |         avg         
+----------+---------------------
+ Ford     | 171967.729473684211
+ Smart    | 159887.950000000000
+ Maserati | 122897.857500000000
+ Dodge    | 166337.502307692308
+ Infiniti | 179690.643846153846
+(5 rows)
+```
+
+
+#### ROUND
+The PostgreSQL `ROUND()` function rounds a numeric value to its nearest integer or a number with the number of decimal places.
+```sql
+SELECT ROUND(AVG(price)) FROM car;
+```
+_Ouptut_
+```
+ round  
+--------
+ 164736
+(1 row)
+```
+
+```sql
+SELECT make, ROUND(AVG(price)) FROM car GROUP BY make LIMIT 5;
+```
+_Ouptut_
+```
+   make   | round  
+----------+--------
+ Ford     | 171968
+ Smart    | 159888
+ Maserati | 122898
+ Dodge    | 166338
+ Infiniti | 179691
+(5 rows)
+
+
+```
+
+#### COUNT
+The `COUNT()` function returns the number of rows that matches a specified criterion.
+```sql
+SELECT COUNT(make) FROM car;
+```
+_Ouptut_
+```
+ count 
+-------
+  1000
+(1 row)
+```
+
+#### SUM
+The `SUM()` function returns the total sum of a numeric column.
+```sql
+SELECT SUM(price) FROM car;
+```
+_Ouptut_
+```
+     sum      
+--------------
+ 164735601.30
+(1 row)
+```
+
+```sql
+SELECT make, SUM(price) FROM car GROUP BY make LIMIT 5;
+```
+_Ouptut_
+```
+   make   |     sum     
+----------+-------------
+ Ford     | 16336934.30
+ Smart    |   159887.95
+ Maserati |   491591.43
+ Dodge    |  8649550.12
+ Infiniti |  2335978.37
+(5 rows)
+```
+
+### Basic arithmatic operation
+
+```sql
+SELECT 10 + 2;
+```
+_Ouptut_
+```
+ ?column? 
+----------
+       12
+(1 row)
+```
+
+```sql
+SELECT 10 / 2;
+```
+
+_Ouptut_
+```
+ ?column? 
+----------
+        5
+(1 row)
+```
+
+```sql
+SELECT 10^2;
+```
+
+_Ouptut_
+```
+ ?column? 
+----------
+      100
+(1 row)
+```
+
+
+
+Now suppose the company offers a 10% discount on all cars. We will now calculate the amount of this 10%, and calculate the price of the new discount.
+
+```sql
+SELECT id, make, model, price, ROUND(price * 0.10, 2), ROUND(price - (price * 0.10), 2) FROM car;
+```
+
+_Ouptut_
+```
+  id  |     make      |        model         |   price   |  round   |   round   
+------+---------------+----------------------+-----------+----------+-----------
+    1 | Daewoo        | Leganza              | 241058.40 | 24105.84 | 216952.56
+    2 | Mitsubishi    | Montero              | 269595.21 | 26959.52 | 242635.69
+    3 | Kia           | Rio                  | 245275.16 | 24527.52 | 220747.64
+    4 | GMC           | Savana 1500          | 217435.26 | 21743.53 | 195691.73
+    5 | Jaguar        | X-Type               |  41665.96 |  4166.60 |  37499.36
+    6 | Lincoln       | Mark VIII            | 163843.38 | 16384.34 | 147459.04
+    7 | GMC           | Rally Wagon 3500     | 231169.05 | 23116.91 | 208052.15
+    8 | Cadillac      | Escalade ESV         | 279951.34 | 27995.13 | 251956.21
+    9 | Volvo         | XC70                 | 269436.96 | 26943.70 | 242493.26
+   10 | Isuzu         | Rodeo                |  65421.58 |  6542.16 |  58879.42
+--More--
+```
+
+`ROUND (source [ , n ] )` function rounds a numeric value to its nearest integer or a number with the number of decimal places. Where The source argument is a number or a numeric expression that is to be rounded and the n argument is an integer that determines the number of decimal places after rounding.
+
+
+
+ALIAS
+SQL aliases are used to give a table, or a column in a table, a temporary name. Aliases are often used to make column names more readable. An alias only exists for the duration of the query.
+```sql
+SELECT id, make, model, price AS original_price,
+ ROUND(price * 0.10, 2) AS ten_percent_discount,
+ ROUND(price - (price * 0.10), 2) AS discounted_price
+ FROM car;
+```
+
+_Ouptut_
+```
+  id  |     make      |        model         | original_price | ten_percent_discount | discounted_price 
+------+---------------+----------------------+----------------+----------------------+------------------
+    1 | Daewoo        | Leganza              |      241058.40 |             24105.84 |        216952.56
+    2 | Mitsubishi    | Montero              |      269595.21 |             26959.52 |        242635.69
+    3 | Kia           | Rio                  |      245275.16 |             24527.52 |        220747.64
+    4 | GMC           | Savana 1500          |      217435.26 |             21743.53 |        195691.73
+    5 | Jaguar        | X-Type               |       41665.96 |              4166.60 |         37499.36
+    6 | Lincoln       | Mark VIII            |      163843.38 |             16384.34 |        147459.04
+    7 | GMC           | Rally Wagon 3500     |      231169.05 |             23116.91 |        208052.15
+    8 | Cadillac      | Escalade ESV         |      279951.34 |             27995.13 |        251956.21
+    9 | Volvo         | XC70                 |      269436.96 |             26943.70 |        242493.26
+   10 | Isuzu         | Rodeo                |       65421.58 |              6542.16 |         58879.42
+--More--
+```
+
+
+
