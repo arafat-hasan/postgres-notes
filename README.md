@@ -1,6 +1,4 @@
 
-
-
 ## Install PostgreSQL in Ubuntu
 
 To install PostgreSQL, first refresh your server’s local package index:
@@ -382,8 +380,7 @@ _Output_
 ### Mockaroo
 We will use a site  named [Mockaroo](https://mockaroo.com/) to insert a lot of data into our table for our learning convenience. Mockaroo is a online realist test data generator. We will download a bunch of dummy but realistic data in sql format and execute the sql file in terminal.
 
-![Generate data using Mockaroo](https://imgur.com/rLGnx8z)
-
+![Generate data using Mockaroo](https://imgur.com/rLGnx8z.jpg, "Generate data using Mockaroo")
 
 Notes:
 - Field Names and types in Mockaroo according to the image above.
@@ -767,7 +764,7 @@ Now we will download a new bunch of data to ceate another  table called `car`. T
 - `model`: Model of the car
 - `price`: Price of the car, price between in a nice range
 
-![Generate data using Mockaroo](https://imgur.com/z93rIG7)
+![Generate data using Mockaroo](https://imgur.com/z93rIG7.jpg ":Generate data using Mockaroo")
 
 Now edit the downloded file `car.sql` a bit—
 ```sql
