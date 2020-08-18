@@ -6,7 +6,7 @@
 
 
 <h1 align="center"> PostgreSQL Notes </h1>
-===========================================
+
 
 
 
@@ -14,7 +14,7 @@
 
 <br>
 
-## Table Of Content
+### Table Of Content
 - [Introduction to PostgreSQL](#introduction-to-postgresql)
 - [Installation](#🚧-installation)
   * [ Ubuntu](#install-postgresql-in-ubuntu)
@@ -60,6 +60,8 @@
   * [ALIAS](#alias)
 
 
+
+<br>
 
 # Introduction to PostgreSQL
 
