@@ -1,4 +1,5 @@
 
+
 <p align="center">
 <img align="center" width="250" height="250" alt="PostgreSQL Logo" src="https://imgur.com/JL46J3e.jpg">
 <p>
@@ -47,7 +48,7 @@
     + [GROUP BY with ORDER BY](#group-by-with-order-by)
     + [GROUP BY HAVING](#group-by-having)
   * [COALESCE](#coalesce)
-  * [Another Table Called `car`](#another-table-called--car-)
+  * [Another Table Called `car`](#another-table-called-car)
   * [Basic Functions](#basic-functions)
     + [MAX](#max)
     + [MIN](#min)
@@ -124,6 +125,7 @@ List out the available streams for the `postgresql` module using the `dnf` comma
 ```
 $ sudo dnf module list postgresql
 ```
+
 <sub>_Output_</sub>
 ```
 postgresql                           9.6                             client, server [d]                          PostgreSQL server and client module                         
@@ -406,6 +408,7 @@ CREATE TABLE person (
  date_of_birth DATE NOT NULL,
  email VARCHAR(150));
 ```
+
 <sub>_Output_</sub>
 ```
 CREATE TABLE
@@ -446,20 +449,24 @@ Indexes:
 
 ## INSERT INTO
 Notice that, as email is not `NOT NULL` so it is optional to insert into the table.
+
 <sub>_Command_</sub>
 ```sql
 INSERT INTO person (first_name, last_name, gender, date_of_birth)
  VALUES('Anne', 'Smith', 'female', DATE '1988-01-09');
 ```
+
 <sub>_Output_</sub>
 ```
 INSERT 0 1
 ```
+
 <sub>_Command_</sub>
 ```sql
 INSERT INTO person (first_name, last_name, gender, date_of_birth, email)
  VALUES('Jack', 'Doe', 'male', DATE '1985-11-03', 'jack@example.com');
 ```
+
 <sub>_Output_</sub>
 ```
 INSERT 0 1
@@ -468,10 +475,12 @@ INSERT 0 1
 
 ## SELECT
 Fetch all data from table:
+
 <sub>_Command_</sub>
 ```sql
 SELECT * FROM person;
 ```
+
 <sub>_Output_</sub>
 ```
  id | first_name | last_name | gender | date_of_birth |      email       
@@ -511,7 +520,7 @@ Download the data as a file named `person.sql`.
 
 Now we will do some tweaking in `person.sql`, according to our needs. Open this file in your preferred editor, I'm using vs code. Then make the following changes to the CREATE TABLE command at the top of the file.  Notice that we have added `id BIGSERIAL NOT NULL PRIMARY KEY`, changed `VARCHAR` sizes, and specified the `NOT NULL` fields.
 
-<sub>_Command_</sub>
+
 ```sql
 create table person (
 	id BIGSERIAL NOT NULL PRIMARY KEY,
@@ -548,10 +557,12 @@ test=# \d person;
 
 
 Here we have made a query to fetch all the data from the `person` table.
+
 <sub>_Command_</sub>
 ```sql
 SELECT * FROM person;
 ```
+
 <sub>_Output_</sub>
 ```
   id  |   first_name   |      last_name      |                  email                  | gender | date_of_birth |         country_of_birth         
@@ -575,10 +586,12 @@ SELECT * FROM person;
 ```
 
 Alternatively, we can specify our required field names:
+
 <sub>_Command_</sub>
 ```sql
 SELECT id, first_name, last_name FROM person;
 ```
+
 <sub>_Output_</sub>
 ```
   id  |   first_name   |      last_name      
@@ -606,6 +619,7 @@ The ORDER BY keyword is used to sort the result-set in ascending (`ASC`) or desc
 
 ### ASC
 For ascending order:
+
 <sub>_Command_</sub>
 ```sql
 SELECT * FROM person ORDER BY country_of_birth;
@@ -630,6 +644,7 @@ SELECT * FROM person ORDER BY country_of_birth;
 
 ### DESC
 For dscending order:
+
 <sub>_Command_</sub>
 ```sql
 SELECT * FROM person ORDER BY country_of_birth DESC;
@@ -653,10 +668,12 @@ SELECT * FROM person ORDER BY country_of_birth DESC;
 ```
 
 Date of birth in dscending order:
+
 <sub>_Command_</sub>
 ```sql
 SELECT * FROM person ORDER BY date_of_birth DESC;
 ```
+
 <sub>_Output_</sub>
 
 ```
@@ -679,6 +696,7 @@ SELECT * FROM person ORDER BY date_of_birth DESC;
 
 ### ORDER BY with two-parameter
 This means that if `country_of_birth` is the same, then the rows will be sorted according to the `id` column. Check the difference with the previous one and this.
+
 <sub>_Command_</sub>
 ```sql
 SELECT * FROM person ORDER BY country_of_birth, id;
@@ -699,6 +717,7 @@ SELECT * FROM person ORDER BY country_of_birth, id;
 
 ## DISTINCT
 The `SELECT DISTINCT` statement is used to return only distinct (different) values.
+
 <sub>_Command_</sub>
 ```sql
 SELECT DISTINCT country_of_birth FROM person ORDER BY country_of_birth;
@@ -726,6 +745,7 @@ SELECT DISTINCT country_of_birth FROM person ORDER BY country_of_birth;
 ```
 ## WHERE
 The `WHERE` clause is used to extract only those records that fulfill a specified condition.
+
 <sub>_Command_</sub>
 ```sql
 SELECT * FROM person WHERE gender='Female';
@@ -781,10 +801,12 @@ There are two wildcards often used in conjunction with the LIKE operator:
 -   _ : The underscore represents a single character
 
 Find all emails ending with `disqus.com`:
+
 <sub>_Command_</sub>
 ```sql
 SELECT * FROM person WHERE email LIKE '%disqus.com';
 ```
+
 <sub>_Output_</sub>
 ```
  id  | first_name |  last_name   |           email            | gender | date_of_birth | country_of_birth 
@@ -824,6 +846,7 @@ SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth;
 --More--
 ```
 ### GROUP BY with ORDER BY
+
 <sub>_Command_</sub>
 ```sql
 SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth ORDER BY country_of_birth;
@@ -852,6 +875,7 @@ The HAVING clause was added to SQL because the WHERE keyword could not be used w
 ```sql
 SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth HAVING COUNT(*) > 50 ORDER BY country_of_birth;
 ```
+
 <sub>_Output_</sub>
 ```
  country_of_birth | count 
@@ -864,6 +888,7 @@ SELECT country_of_birth, COUNT(*) FROM person GROUP BY country_of_birth HAVING C
 
 ## COALESCE
 The `COALESCE()` function returns the first non-null value in a list.
+
 <sub>_Command_</sub>
 ```sql
 SELECT COALESCE(email, 'Email not provided') FROM person;
@@ -898,7 +923,8 @@ Now we will download a new bunch of data to create another table called `car`. T
 ![Generate data using Mockaroo](https://imgur.com/z93rIG7.jpg ":Generate data using Mockaroo")
 
 Now edit the downloded file `car.sql` a bit—
-<sub>_Command_</sub>
+
+
 ```sql
 create table car (
 	id BIGSERIAL NOT NULL PRIMARY KEY,
@@ -915,10 +941,12 @@ test=# \i /path/to/car.sql
 ```
 
 Here is first 10 rows from `car` table. `LIMIT` is used to get only first 10 rows.
+
 <sub>_Command_</sub>
 ```sql
 SELECT * FROM car LIMIT 10;
 ```
+
 <sub>_Output_</sub>
 ```
  id |    make    |      model       |   price   
@@ -942,10 +970,12 @@ SELECT * FROM car LIMIT 10;
 ### MAX
 
 The `MAX()` function returns the largest value of the selected column.
+
 <sub>_Command_</sub>
 ```sql
 SELECT MAX(price) FROM car;
 ```
+
 <sub>_Output_</sub>
 ```
     max    
@@ -959,6 +989,7 @@ SELECT MAX(price) FROM car;
 ```sql
 SELECT make, MAX(price) FROM car GROUP BY make LIMIT 5;
 ```
+
 <sub>_Output_</sub>
 ```
    make   |    max    
@@ -973,10 +1004,12 @@ SELECT make, MAX(price) FROM car GROUP BY make LIMIT 5;
 
 ### MIN
 The `MIN()` function returns the smallest value of the selected column.
+
 <sub>_Command_</sub>
 ```sql
 SELECT MIN(price) FROM car;
 ```
+
 <sub>_Output_</sub>
 ```
    min    
@@ -990,6 +1023,7 @@ SELECT MIN(price) FROM car;
 ```sql
 SELECT make, MIN(price) FROM car GROUP BY make LIMIT 5;
 ```
+
 <sub>_Output_</sub>
 ```
    make   |    min    
@@ -1009,6 +1043,7 @@ The `AVG()` function returns the average value of a numeric column.
 ```sql
 SELECT AVG(price) FROM car;
 ```
+
 <sub>_Output_</sub>
 ```
          avg         
@@ -1021,6 +1056,7 @@ SELECT AVG(price) FROM car;
 ```sql
 SELECT make, AVG(price) FROM car GROUP BY make LIMIT 5;
 ```
+
 <sub>_Output_</sub>
 ```
    make   |         avg         
@@ -1036,10 +1072,12 @@ SELECT make, AVG(price) FROM car GROUP BY make LIMIT 5;
 
 ### ROUND
 The PostgreSQL `ROUND()` function rounds a numeric value to its nearest integer or a number with the number of decimal places.
+
 <sub>_Command_</sub>
 ```sql
 SELECT ROUND(AVG(price)) FROM car;
 ```
+
 <sub>_Output_</sub>
 ```
  round  
@@ -1052,6 +1090,7 @@ SELECT ROUND(AVG(price)) FROM car;
 ```sql
 SELECT make, ROUND(AVG(price)) FROM car GROUP BY make LIMIT 5;
 ```
+
 <sub>_Output_</sub>
 ```
    make   | round  
@@ -1073,6 +1112,7 @@ The `COUNT()` function returns the number of rows that match a specified criteri
 ```sql
 SELECT COUNT(make) FROM car;
 ```
+
 <sub>_Output_</sub>
 ```
  count 
@@ -1083,10 +1123,12 @@ SELECT COUNT(make) FROM car;
 
 ### SUM
 The `SUM()` function returns the total sum of a numeric column.
+
 <sub>_Command_</sub>
 ```sql
 SELECT SUM(price) FROM car;
 ```
+
 <sub>_Output_</sub>
 ```
      sum      
@@ -1099,6 +1141,7 @@ SELECT SUM(price) FROM car;
 ```sql
 SELECT make, SUM(price) FROM car GROUP BY make LIMIT 5;
 ```
+
 <sub>_Output_</sub>
 ```
    make   |     sum     
@@ -1117,6 +1160,7 @@ SELECT make, SUM(price) FROM car GROUP BY make LIMIT 5;
 ```sql
 SELECT 10 + 2;
 ```
+
 <sub>_Output_</sub>
 ```
  ?column? 
@@ -1211,4 +1255,27 @@ SELECT id, make, model, price AS original_price,
 ```
 
 
+# NULLIF
+The NULLIF() function returns NULL if two expressions are equal, otherwise it returns the first expression.
 
+```
+test=# SELECT NULLIF(2, 1);
+ nullif 
+--------
+      2
+(1 row)
+
+test=# SELECT NULLIF('a', 'b');
+ nullif 
+--------
+ a
+(1 row)
+
+test=# SELECT NULLIF(0, 0);
+ nullif 
+--------
+       
+(1 row)
+	
+
+```
