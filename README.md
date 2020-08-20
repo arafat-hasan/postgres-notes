@@ -17,8 +17,8 @@
 
 ### Table Of Content
 - [Introduction to PostgreSQL](#introduction-to-postgresql)
-- [Installation](#🚧-installation)
-  * [ Ubuntu](#install-postgresql-in-ubuntu)
+- [Installation](#🚧-installation.y)
+  * [Ubuntu](#install-postgresql-in-ubuntu)
   * [CentOS](#install-postgresql-in-centos)
     + [Method 1: PostgreSQL Yum Repository](#method-1--postgresql-yum-repository)
     + [Method 2: Using DNF](#method-2--using-dnf)
@@ -66,7 +66,7 @@
 
 # Introduction to PostgreSQL
 
-PostgreSQL is a powerful, open source object-relational database system with over 30 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance.
+PostgreSQL is a powerful, open source object-relational database system with over 30 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance. 
 
 PostgreSQL has earned a strong reputation for its proven architecture, reliability, data integrity, robust feature set, extensibility, and the dedication of the open source community behind the software to consistently deliver performant and innovative solutions. PostgreSQL runs on all major operating systems including Linux, UNIX (AIX, BSD, HP-UX, SGI IRIX, Mac OS X, Solaris, Tru64), and Windows.
 
@@ -82,7 +82,7 @@ From wikipedia:
 
 ## Install PostgreSQL in Ubuntu
 
-To install PostgreSQL, first refresh your server’s local package index:
+To install PostgreSQL in ubuntu, we have to first refresh our server’s local package index:
 ```
 $ sudo apt update
 ```
@@ -664,6 +664,7 @@ SELECT * FROM person ORDER BY country_of_birth DESC;
   725 | Sadye          | Garman              |                                         | Female | 1985-11-05    | Yemen
   537 | Isadore        | Tasker              | itaskerew@example.com                   | Male   | 1977-03-05    | Vietnam
   602 | Nevins         | Blenkinship         | nblenkinshipgp@psu.edu                  | Male   | 2010-02-04    | Vietnam
+--More--
 
 ```
 
@@ -797,8 +798,8 @@ The `LIKE` operator is used in a `WHERE` clause to search for a specified patter
 
 There are two wildcards often used in conjunction with the LIKE operator:
 
--   %: The percent sign represents zero, one, or multiple characters
--   _ : The underscore represents a single character
+- `%`: The percent sign represents zero, one, or multiple characters
+- `_`: The underscore represents a single character
 
 Find all emails ending with `disqus.com`:
 
@@ -982,7 +983,6 @@ SELECT MAX(price) FROM car;
 -----------
  299959.83
 (1 row)
-
 ```
 
 <sub>_Command_</sub>
@@ -1016,7 +1016,6 @@ SELECT MIN(price) FROM car;
 ----------
  30348.16
 (1 row)
-
 ```
 
 <sub>_Command_</sub>
@@ -1277,5 +1276,355 @@ test=# SELECT NULLIF(0, 0);
        
 (1 row)
 	
+```
+
+
+
+# DATE
 
 ```
+test=# SELECT NOW();
+             now              
+------------------------------
+ 2020-08-19 23:39:49.18778+06
+(1 row)
+
+test=# SELECT NOW()::DATE;
+    now     
+------------
+ 2020-08-19
+(1 row)
+
+test=# SELECT NOW()::TIME;
+       now       
+-----------------
+ 23:40:44.645625
+(1 row)
+
+```
+
+Date Adding and Subtracting
+```
+test=# SELECT NOW() - INTERVAL '1 YEAR';
+           ?column?            
+-------------------------------
+ 2019-08-19 23:47:11.475305+06
+(1 row)
+
+test=# SELECT NOW() - INTERVAL '10 YEAR';
+           ?column?            
+-------------------------------
+ 2010-08-19 23:47:31.627347+06
+(1 row)
+
+test=# SELECT NOW() - INTERVAL '3 MONTHS';
+           ?column?            
+-------------------------------
+ 2020-05-19 23:47:53.403383+06
+(1 row)
+
+test=# SELECT NOW() + INTERVAL '40 DAYS';
+           ?column?            
+-------------------------------
+ 2020-09-28 23:48:31.419856+06
+(1 row)
+
+
+```
+
+
+Extract Fields from date
+```
+test=# SELECT EXTRACT(YEAR FROM NOW());
+ date_part 
+-----------
+      2020
+(1 row)
+
+test=# SELECT EXTRACT(MONTH FROM NOW());
+ date_part 
+-----------
+         8
+(1 row)
+
+test=# SELECT EXTRACT(CENTURY FROM NOW());
+ date_part 
+-----------
+        21
+(1 row)
+
+
+```
+
+
+AGE function
+
+```
+test=# SELECT first_name, last_name, gender, date_of_birth, AGE(NOW(), date_of_birth) AS age FROM person;
+   first_name   |      last_name      | gender | date_of_birth |                   age                    
+----------------+---------------------+--------+---------------+------------------------------------------
+ Ronda          | Skermer             | Female | 1993-06-30    | 27 years 1 mon 19 days 23:56:04.414053
+ Hamid          | Abbett              | Male   | 1995-08-31    | 24 years 11 mons 19 days 23:56:04.414053
+ Francis        | Nickerson           | Male   | 1998-03-16    | 22 years 5 mons 3 days 23:56:04.414053
+ Erminie        | M'Quharg            | Female | 1999-03-13    | 21 years 5 mons 6 days 23:56:04.414053
+ Teodoro        | Trimmill            | Male   | 1982-04-30    | 38 years 3 mons 19 days 23:56:04.414053
+ Reilly         | Amesbury            | Male   | 1990-12-31    | 29 years 7 mons 19 days 23:56:04.414053
+ West           | Elphey              | Male   | 2004-03-29    | 16 years 4 mons 21 days 23:56:04.414053
+ Letta          | Caurah              | Female | 1994-09-09    | 25 years 11 mons 10 days 23:56:04.414053
+ Elset          | Agass               | Female | 2004-06-26    | 16 years 1 mon 23 days 23:56:04.414053
+--More--
+```
+
+## Primary Key
+deleting adding primary key, deleting data from table, understanding primary key.
+
+```
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ email            | character varying(150) |           |          | 
+ gender           | character varying(7)   |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+
+test=# SELECT * FROM person WHERE id=1;
+ id | first_name | last_name |           email           | gender | date_of_birth | country_of_birth 
+----+------------+-----------+---------------------------+--------+---------------+------------------
+  1 | Ronda      | Skermer   | rskermer0@arstechnica.com | Female | 1993-06-30    | Argentina
+(1 row)
+
+test=# INSERT INTO person (id, first_name, last_name, email, gender, date_of_birth, country_of_birth) VALUES (1, 'Ronda', 'Skermer', 'rskermer0@arstechnica.com', 'Female', '1993-06-30', 'Argentina');
+ERROR:  duplicate key value violates unique constraint "person_pkey"
+DETAIL:  Key (id)=(1) already exists.
+test=# ALTER TABLE person DROP CONSTRAINT person_pkey;
+ALTER TABLE
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ email            | character varying(150) |           |          | 
+ gender           | character varying(7)   |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ country_of_birth | character varying(50)  |           | not null | 
+
+test=# INSERT INTO person (id, first_name, last_name, email, gender, date_of_birth, country_of_birth) VALUES (1, 'Ronda', 'Skermer', 'rskermer0@arstechnica.com', 'Female', '1993-06-30', 'Argentina');
+INSERT 0 1
+test=# SELECT * FROM person WHERE id=1;
+ id | first_name | last_name |           email           | gender | date_of_birth | country_of_birth 
+----+------------+-----------+---------------------------+--------+---------------+------------------
+  1 | Ronda      | Skermer   | rskermer0@arstechnica.com | Female | 1993-06-30    | Argentina
+  1 | Ronda      | Skermer   | rskermer0@arstechnica.com | Female | 1993-06-30    | Argentina
+(2 rows)
+
+test=# ALTER TABLE person ADD PRIMARY KEY(id);
+ERROR:  could not create unique index "person_pkey"
+DETAIL:  Key (id)=(1) is duplicated.
+test=# DELETE FROM person WHERE id=1;
+DELETE 2
+test=# SELECT * FROM person WHERE id=1;
+ id | first_name | last_name | email | gender | date_of_birth | country_of_birth 
+----+------------+-----------+-------+--------+---------------+------------------
+(0 rows)
+
+test=# INSERT INTO person (id, first_name, last_name, email, gender, date_of_birth, country_of_birth) VALUES (1, 'Ronda', 'Skermer', 'rskermer0@arstechnica.com', 'Female', '1993-06-30', 'Argentina');
+INSERT 0 1
+test=# SELECT * FROM person WHERE id=1;
+ id | first_name | last_name |           email           | gender | date_of_birth | country_of_birth 
+----+------------+-----------+---------------------------+--------+---------------+------------------
+  1 | Ronda      | Skermer   | rskermer0@arstechnica.com | Female | 1993-06-30    | Argentina
+(1 row)
+
+test=# ALTER TABLE person ADD PRIMARY KEY(id);
+ALTER TABLE
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ email            | character varying(150) |           |          | 
+ gender           | character varying(7)   |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+
+test=# 
+
+```
+
+## Uique Constraints
+
+```
+test=# ALTER TABLE person ADD CONSTRAINT unique_email_addr UNIQUE(email);
+ALTER TABLE
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ email            | character varying(150) |           |          | 
+ gender           | character varying(7)   |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+    "unique_email_addr" UNIQUE CONSTRAINT, btree (email)
+
+test=# ALTER TABLE person DROP CONSTRAINT unique_email_addr;
+ALTER TABLE
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ email            | character varying(150) |           |          | 
+ gender           | character varying(7)   |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+
+test=# ALTER TABLE person ADD UNIQUE(email);
+ALTER TABLE
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ email            | character varying(150) |           |          | 
+ gender           | character varying(7)   |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+    "person_email_key" UNIQUE CONSTRAINT, btree (email)
+
+```
+
+## Check Constrains
+```
+test=# ALTER TABLE person ADD CONSTRAINT gender_constraint CHECK (gender = 'Female' OR gender = 'Male');
+ALTER TABLE
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ email            | character varying(150) |           |          | 
+ gender           | character varying(7)   |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+    "person_email_key" UNIQUE CONSTRAINT, btree (email)
+Check constraints:
+    "gender_constraint" CHECK (gender::text = 'Female'::text OR gender::text = 'Male'::text)
+
+```
+
+## Delete Records
+```
+test=# DELETE FROM person;
+DELETE 1000
+test=# SELECT * FROM person;
+ id | first_name | last_name | email | gender | date_of_birth | country_of_birth 
+----+------------+-----------+-------+--------+---------------+------------------
+(0 rows)
+
+test=# \i /path/to/person.sql 
+psql:/path/to/person.sql:9: ERROR:  relation "person" already exists
+INSERT 0 1
+--More--
+test=# \d person;
+                                         Table "public.person"
+      Column      |          Type          | Collation | Nullable |              Default               
+------------------+------------------------+-----------+----------+------------------------------------
+ id               | bigint                 |           | not null | nextval('person_id_seq'::regclass)
+ first_name       | character varying(50)  |           | not null | 
+ last_name        | character varying(50)  |           | not null | 
+ email            | character varying(150) |           |          | 
+ gender           | character varying(7)   |           | not null | 
+ date_of_birth    | date                   |           | not null | 
+ country_of_birth | character varying(50)  |           | not null | 
+Indexes:
+    "person_pkey" PRIMARY KEY, btree (id)
+    "person_email_key" UNIQUE CONSTRAINT, btree (email)
+Check constraints:
+    "gender_constraint" CHECK (gender::text = 'Female'::text OR gender::text = 'Male'::text)
+
+test=# SELECT * FROM person LIMIT 10;
+  id  | first_name |   last_name   |             email              | gender | date_of_birth | country_of_birth 
+------+------------+---------------+--------------------------------+--------+---------------+------------------
+ 1002 | Ronda      | Skermer       | rskermer0@arstechnica.com      | Female | 1993-06-30    | Argentina
+ 1003 | Hamid      | Abbett        | habbett1@cbc.ca                | Male   | 1995-08-31    | Ethiopia
+ 1004 | Francis    | Nickerson     | fnickerson2@mac.com            | Male   | 1998-03-16    | Portugal
+ 1005 | Erminie    | M'Quharg      | emquharg3@e-recht24.de         | Female | 1999-03-13    | Mozambique
+ 1006 | Teodoro    | Trimmill      |                                | Male   | 1982-04-30    | China
+ 1007 | Reilly     | Amesbury      | ramesbury5@businessinsider.com | Male   | 1990-12-31    | China
+ 1008 | West       | Elphey        |                                | Male   | 2004-03-29    | Indonesia
+ 1009 | Letta      | Caurah        | lcaurah7@yale.edu              | Female | 1994-09-09    | Indonesia
+ 1010 | Elset      | Agass         | eagass8@rambler.ru             | Female | 2004-06-26    | China
+ 1011 | Aurore     | Drillingcourt | adrillingcourt9@cnet.com       | Female | 1977-10-19    | China
+(10 rows)
+
+test=# DELETE FROM person WHERE id = 1002;
+DELETE 1
+test=# SELECT * FROM person LIMIT 10;
+  id  | first_name |   last_name   |             email              | gender | date_of_birth | country_of_birth 
+------+------------+---------------+--------------------------------+--------+---------------+------------------
+ 1003 | Hamid      | Abbett        | habbett1@cbc.ca                | Male   | 1995-08-31    | Ethiopia
+ 1004 | Francis    | Nickerson     | fnickerson2@mac.com            | Male   | 1998-03-16    | Portugal
+ 1005 | Erminie    | M'Quharg      | emquharg3@e-recht24.de         | Female | 1999-03-13    | Mozambique
+ 1006 | Teodoro    | Trimmill      |                                | Male   | 1982-04-30    | China
+ 1007 | Reilly     | Amesbury      | ramesbury5@businessinsider.com | Male   | 1990-12-31    | China
+ 1008 | West       | Elphey        |                                | Male   | 2004-03-29    | Indonesia
+ 1009 | Letta      | Caurah        | lcaurah7@yale.edu              | Female | 1994-09-09    | Indonesia
+ 1010 | Elset      | Agass         | eagass8@rambler.ru             | Female | 2004-06-26    | China
+ 1011 | Aurore     | Drillingcourt | adrillingcourt9@cnet.com       | Female | 1977-10-19    | China
+ 1012 | Ilse       | Goldman       | igoldmana@ihg.com              | Female | 2001-07-31    | Mongolia
+(10 rows)
+
+test=# DELETE FROM person WHERE gender='Female' AND country_of_birth='China';
+DELETE 94
+test=# SELECT * FROM person WHERE gender='Female' AND country_of_birth='China';
+ id | first_name | last_name | email | gender | date_of_birth | country_of_birth 
+----+------------+-----------+-------+--------+---------------+------------------
+(0 rows)
+
+```
+
+For our learning perpose, now we will delete every record from the person table and restore it again from our sql file.
+
+```
+test=# DELETE FROM person;
+DELETE 905
+test=# \i /path/to/person.sql
+psql:/path/to/person.sql:9: ERROR:  relation "person" already exists
+INSERT 0 1
+--More--
+```
+
+## Update Record
+
+
+See More: [Date/Time Types](https://www.postgresql.org/docs/9.1/datatype-datetime.html)
+
