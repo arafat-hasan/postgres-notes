@@ -68,7 +68,7 @@
       - [INTERVAL](#interval)
     + [EXTRACT](#extract)
     + [AGE](#age)
-  * [The Shallow Sea](#the-shallow-sea)
+- [The Shallow Sea](#the-shallow-sea)
   * [PRIMARY KEY](#primary-key)
   * [CONSTRAINTS](#constraints)
     + [UNIQUE constraint](#unique-constraint)
@@ -1478,7 +1478,7 @@ See More: [Date/Time Types](https://www.postgresql.org/docs/9.1/datatype-datetim
 
 
 
-## The Shallow Sea
+# The Shallow Sea
 
 ## PRIMARY KEY
 The `PRIMARY KEY` of a table is a combination of `NOT NULL` and `UNIQUE` constraint. 
