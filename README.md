@@ -63,7 +63,7 @@
   * [NULLIF](#nullif)
   * [DATE](#date)
     + [NOW](#now)
-    + [Addtion and Subtraction of Date](#addtion-and-subtraction-of-date)
+    + [Addition and Subtraction of Date](#addition-and-subtraction-of-date)
       - [INTERVAL](#interval)
     + [EXTRACT](#extract)
     + [AGE](#age)
@@ -1370,7 +1370,7 @@ test=# SELECT NOW()::TIME;
 
 ```
 
-### Addtion and Subtraction of Date
+### Addition and Subtraction of Date
 #### INTERVAL
 
 ```
@@ -2263,6 +2263,8 @@ LEFT JOIN car ON person.car_id = car.id;
 
 ### RIGHT JOIN
 The RIGHT JOIN keyword returns all records from the right table (table2), and the matched records from the left table (table1). The result is NULL from the left side, when there is no match.
+
+
 ![RIGHT JOIN](https://imgur.com/5ex2jIP.jpg, "RIGHT JOIN")
 
 
