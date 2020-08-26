@@ -15,7 +15,8 @@
 
 <br>
 
-### Table Of Content
+### Table of Content
+
 - [Introduction to PostgreSQL](#introduction-to-postgresql)
 - [🚧 Installation](#---installation)
   * [Install PostgreSQL in Ubuntu](#install-postgresql-in-ubuntu)
@@ -35,7 +36,7 @@
   * [INSERT INTO](#insert-into)
   * [SELECT](#select)
   * [DROP TABLE](#drop-table)
-- [The Surface See](#the-surface-see)
+- [The Surface Sea](#the-surface-sea)
   * [Mockaroo Data Generator](#mockaroo-data-generator)
   * [ORDER BY](#order-by)
     + [ASC](#asc)
@@ -67,6 +68,7 @@
       - [INTERVAL](#interval)
     + [EXTRACT](#extract)
     + [AGE](#age)
+  * [The Shallow Sea](#the-shallow-sea)
   * [PRIMARY KEY](#primary-key)
   * [CONSTRAINTS](#constraints)
     + [UNIQUE constraint](#unique-constraint)
@@ -532,7 +534,7 @@ DROP TABLE
 
 
 
-#  The Surface See
+#  The Surface Sea
 
 
 ## Mockaroo Data Generator
@@ -1474,6 +1476,9 @@ SELECT first_name, last_name, gender, date_of_birth, AGE(NOW(), date_of_birth) A
 
 See More: [Date/Time Types](https://www.postgresql.org/docs/9.1/datatype-datetime.html)
 
+
+
+## The Shallow Sea
 
 ## PRIMARY KEY
 The `PRIMARY KEY` of a table is a combination of `NOT NULL` and `UNIQUE` constraint. 
@@ -2487,8 +2492,4 @@ INSERT INTO person (person_uid, first_name, last_name, email, gender, date_of_bi
 VALUES (uuid_generate_v4(), uuid_generate_v4(), 'Letta', 'Caurah', 'lcaurah7@yale.edu', 'Female', '1994-09-09', 'Indonesia');
 
 ```
-
-
-
-
 
